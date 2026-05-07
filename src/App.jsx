@@ -1,16 +1,42 @@
 import { useState, useMemo } from "react";
 
 const AG_LOGO = "https://www.australiangold.net/themes/australian-gold/assets/img/australiangold-logo.svg";
-const BASE = "https://www.australiangold.net/";
+const BR = "https://bronzare.ro/wp-content/uploads/";
+const AGN = "https://www.australiangold.net/";
+
+// Poze: { large: url 250ml/flacon, small: url 15ml/plic }
+// Daca lipseste "small", se foloseste "large" si pentru plicuri
+// Daca lipseste complet, se afiseaza logo-ul AG
 const IMAGES = {
-  "Accelerator Extreme":            BASE + "442-medium_default/accelerator-extreme-intense-dha-bronzer.jpg",
-  "Accelerator Lotion":             BASE + "441-medium_default/accelerator.jpg",
-  "Accelerator Lot. Aniversare 40": BASE + "441-medium_default/accelerator.jpg",
-  "Accelerator Spray":              BASE + "1098-medium_default/accelerator-spray-gel-con-bronzer.jpg",
-  "Adorably Bronze":                BASE + "1302-medium_default/adorably-bronze.jpg",
-  "Daringly Dark":                  BASE + "451-medium_default/daringly-dark.jpg",
-  "Deviously Bronze":               BASE + "1301-medium_default/deviously-bronze.jpg",
-  "Hardcore Bronze":                BASE + "1300-medium_default/hardcore-bronze.jpg",
+  "Accelerator Extreme": {
+    large: BR + "2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-250ml.jpg",
+    small: BR + "2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-15ml.jpg",
+  },
+  "Accelerator Lotion": {
+    large: BR + "2015/04/Australian_Gold_Accelerator_250ml.png",
+    small: AGN + "441-medium_default/accelerator.jpg",
+  },
+  "Accelerator Lot. Aniversare 40": {
+    large: BR + "2015/04/Australian_Gold_Accelerator_250ml.png",
+  },
+  "Accelerator K": {
+    large: BR + "2020/12/AG-Accelerator-K-250ml.jpg",
+  },
+  "Accelerator Spray": {
+    large: AGN + "1098-medium_default/accelerator-spray-gel-con-bronzer.jpg",
+  },
+  "Adorably Bronze": {
+    large: BR + "2018/02/Adorably-Black-250ml.jpg",
+  },
+  "Daringly Dark": {
+    large: BR + "2020/12/AG-Daringly-Dark-250ml.jpg",
+  },
+  "Deviously Bronze": {
+    large: AGN + "1301-medium_default/deviously-bronze.jpg",
+  },
+  "Hardcore Bronze": {
+    large: AGN + "1300-medium_default/hardcore-bronze.jpg",
+  },
 };
 
 // =============================================
@@ -121,8 +147,21 @@ const isLarge = (s) => ["250 mL","300 mL","118 mL","90 mL"].includes(s);
 
 function Img({ name, size }) {
   const [err, setErr] = useState(false);
-  const src = IMAGES[name];
-  const show = src && !err && isLarge(size);
+  const imgs = IMAGES[name];
+  const large = isLarge(size);
+
+  // Alege poza corecta in functie de marime
+  let src = null;
+  if (imgs) {
+    if (large) {
+      src = imgs.large || null;
+    } else {
+      // plic: foloseste "small" daca exista, altfel "large"
+      src = imgs.small || imgs.large || null;
+    }
+  }
+
+  const show = src && !err;
   return (
     <div style={{ width: 72, height: 72, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <img
