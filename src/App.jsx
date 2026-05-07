@@ -14,22 +14,26 @@ const IMAGES = {
   },
   "Accelerator Lotion": {
     large: BR + "2015/04/Australian_Gold_Accelerator_250ml.png",
-    small: AGN + "441-medium_default/accelerator.jpg",
+    small: BR + "2015/04/Australian_Gold_Accelerator_15ml.png",
   },
   "Accelerator Lot. Aniversare 40": {
     large: BR + "2015/04/Australian_Gold_Accelerator_250ml.png",
+    small: BR + "2015/04/Australian_Gold_Accelerator_15ml.png",
   },
   "Accelerator K": {
     large: BR + "2020/12/AG-Accelerator-K-250ml.jpg",
+    small: BR + "2020/12/AG-Accelerator-K-15ml.jpg",
   },
   "Accelerator Spray": {
     large: AGN + "1098-medium_default/accelerator-spray-gel-con-bronzer.jpg",
   },
   "Adorably Bronze": {
     large: BR + "2018/02/Adorably-Black-250ml.jpg",
+    small: BR + "2018/02/Adorably-Black-15ml.jpg",
   },
   "Daringly Dark": {
     large: BR + "2020/12/AG-Daringly-Dark-250ml.jpg",
+    small: BR + "2020/12/AG-Daringly-Dark-15ml.jpg",
   },
   "Deviously Bronze": {
     large: AGN + "1301-medium_default/deviously-bronze.jpg",
