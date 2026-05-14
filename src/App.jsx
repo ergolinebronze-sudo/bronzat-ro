@@ -343,7 +343,7 @@ export default function App() {
             </div>
             <div style={{ textAlign:"right", flexShrink:0 }}>
               <div style={{ fontWeight:900, fontSize:17 }}>{(item.qty*item.ron).toFixed(2)} RON</div>
-              <div style={{ fontSize:11, color:"#aaa", marginTop:2 }}>fără TVA</div>
+              <div style={{ fontSize:12, color:"#e53e3e", fontWeight:700, marginTop:2 }}>fără TVA</div>
             </div>
           </div>
         ))}
@@ -456,7 +456,7 @@ export default function App() {
               <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8, flexShrink:0 }}>
                 <div style={{ textAlign:"right" }}>
                   <div style={{ fontWeight:900, fontSize:17, color:DARK }}>{p.ron > 0 ? p.ron.toFixed(2) + " RON" : "—"}</div>
-                  <div style={{ fontSize:10, color:"#aaa" }}>fără TVA</div>
+                  <div style={{ fontSize:12, color:"#e53e3e", fontWeight:700 }}>fără TVA</div>
                 </div>
                 <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                   <div style={{ display:"flex", border:"1.5px solid #e0d5c5", borderRadius:8, overflow:"hidden" }}>
