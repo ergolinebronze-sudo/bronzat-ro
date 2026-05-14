@@ -499,6 +499,7 @@ export default function App() {
                         <div style={{ flex:1 }}>
                           <span style={{ fontSize:12, fontWeight:700, color:"#444" }}>{v.size}</span>
                           <span style={{ fontSize:13, fontWeight:900, color:DARK, marginLeft:10 }}>{v.ron > 0 ? v.ron.toFixed(2) + " RON" : "—"}</span>
+                          {v.ron > 0 && <span style={{ fontSize:11, fontWeight:700, color:"#e53e3e", marginLeft:6 }}>fără TVA</span>}
                         </div>
                         <div style={{ display:"flex", alignItems:"center", gap:5 }}>
                           <div style={{ display:"flex", border:"1.5px solid #e0d5c5", borderRadius:8, overflow:"hidden" }}>
