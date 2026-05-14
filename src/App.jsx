@@ -1,290 +1,360 @@
 import { useState, useMemo } from "react";
 
-const AG_LOGO = "https://www.australiangold.net/themes/australian-gold/assets/img/australiangold-logo.svg";
+// ─── AUSTRALIAN GOLD ───────────────────────────────────────────────
 const BR = "https://bronzare.ro/wp-content/uploads/";
 const AGN = "https://www.australiangold.net/";
+const AG_LOGO = "https://www.australiangold.net/themes/australian-gold/assets/img/australiangold-logo.svg";
 
-// Poze: { large: url 250ml/flacon, small: url 15ml/plic }
-// Daca lipseste "small", se foloseste "large" si pentru plicuri
-// Daca lipseste complet, se afiseaza logo-ul AG
-const IMAGES = {
-  "Accelerator Extreme": {
-    large: BR + "2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-250ml.jpg",
-    small: BR + "2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-15ml.jpg",
-  },
-  "Accelerator Lotion": {
-    large: BR + "2015/04/Australian_Gold_Accelerator_250ml.png",
-    small: BR + "2015/04/Australian_Gold_Accelerator_15ml.png",
-  },
-  "Accelerator Lot. Aniversare 40": {
-    large: BR + "2015/04/Australian_Gold_Accelerator_250ml.png",
-    small: BR + "2015/04/Australian_Gold_Accelerator_15ml.png",
-  },
-  "Accelerator K": {
-    large: BR + "2020/12/AG-Accelerator-K-250ml.jpg",
-    small: BR + "2020/12/AG-Accelerator-K-15ml.jpg",
-  },
-  "Accelerator Spray": {
-    large: AGN + "1098-medium_default/accelerator-spray-gel-con-bronzer.jpg",
-  },
-  "Adorably Bronze": {
-    large: BR + "2018/02/Adorably-Black-250ml.jpg",
-    small: BR + "2018/02/Adorably-Black-15ml.jpg",
-  },
-  "Daringly Dark": {
-    large: BR + "2020/12/AG-Daringly-Dark-250ml.jpg",
-    small: BR + "2020/12/AG-Daringly-Dark-15ml.jpg",
-  },
-  "Deviously Bronze": {
-    large: AGN + "1301-medium_default/deviously-bronze.jpg",
-  },
-  "Hardcore Bronze": {
-    large: AGN + "1300-medium_default/hardcore-bronze.jpg",
-  },
+const AG_IMAGES = {
+  "Accelerator Extreme":            { large: BR+"2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-250ml.jpg", small: BR+"2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-15ml.jpg" },
+  "Accelerator Lotion":             { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: BR+"2015/04/Australian_Gold_Accelerator_15ml.png" },
+  "Accelerator Lot. Aniversare 40": { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: BR+"2015/04/Australian_Gold_Accelerator_15ml.png" },
+  "Accelerator K":                  { large: BR+"2020/12/AG-Accelerator-K-250ml.jpg", small: BR+"2020/12/AG-Accelerator-K-15ml.jpg" },
+  "Accelerator Spray":              { large: AGN+"1098-medium_default/accelerator-spray-gel-con-bronzer.jpg" },
+  "Adorably Bronze":                { large: BR+"2018/02/Adorably-Black-250ml.jpg", small: BR+"2018/02/Adorably-Black-15ml.jpg" },
+  "Daringly Dark":                  { large: BR+"2020/12/AG-Daringly-Dark-250ml.jpg", small: BR+"2020/12/AG-Daringly-Dark-15ml.jpg" },
+  "Deviously Bronze":               { large: AGN+"1301-medium_default/deviously-bronze.jpg" },
+  "Hardcore Bronze":                { large: AGN+"1300-medium_default/hardcore-bronze.jpg" },
 };
 
-// =============================================
-// PRETURI — modifica valorile "eur" dupa nevoie
-// =============================================
-const ALL_PRODUCTS = [
-  { id: 1,  name: "Accelerator Extreme",             size: "250 mL", type: "Bronzant DHA",           eur: 16.40 },
-  { id: 2,  name: "Accelerator Extreme",             size: "15 mL",  type: "Bronzant DHA",           eur: 2.54  },
-  { id: 3,  name: "Accelerator K",                   size: "250 mL", type: "Intensificator",         eur: 15.02 },
-  { id: 4,  name: "Accelerator K",                   size: "15 mL",  type: "Intensificator",         eur: 2.19  },
-  { id: 5,  name: "Accelerator Lotion",              size: "250 mL", type: "Intensificator",         eur: 13.80 },
-  { id: 6,  name: "Accelerator Lotion",              size: "15 mL",  type: "Intensificator",         eur: 2.25  },
-  { id: 7,  name: "Accelerator Lot. Aniversare 40",  size: "250 mL", type: "Intensificator",         eur: 16.29 },
-  { id: 8,  name: "Accelerator Lot. Aniversare 40",  size: "15 mL",  type: "Intensificator",         eur: 2.31  },
-  { id: 9,  name: "Accelerator Spray",               size: "250 mL", type: "Intensificator",         eur: 13.80 },
-  { id: 10, name: "Adorably Bronze",                 size: "250 mL", type: "DHA / Bronzant natural", eur: 22.75 },
-  { id: 11, name: "Adorably Bronze",                 size: "15 mL",  type: "DHA / Bronzant natural", eur: 3.12  },
-  { id: 12, name: "Bold by G Gentlemen",             size: "250 mL", type: "Bronzant DHA",           eur: 34.53 },
-  { id: 13, name: "Bold by G Gentlemen",             size: "15 mL",  type: "Bronzant DHA",           eur: 5.14  },
-  { id: 14, name: "Bronze Accelerator",              size: "250 mL", type: "Bronzant natural",       eur: 15.71 },
-  { id: 15, name: "Bronze Accelerator",              size: "15 mL",  type: "Bronzant natural",       eur: 2.31  },
-  { id: 16, name: "Charmingly Bronze",               size: "250 mL", type: "Bronzant natural",       eur: 22.18 },
-  { id: 17, name: "Charmingly Bronze",               size: "15 mL",  type: "Bronzant natural",       eur: 3.41  },
-  { id: 18, name: "Cheeky Brown",                    size: "250 mL", type: "Bronzant natural",       eur: 18.94 },
-  { id: 19, name: "Cheeky Brown",                    size: "15 mL",  type: "Bronzant natural",       eur: 2.83  },
-  { id: 20, name: "Chiseled by G Gentlemen",         size: "250 mL", type: "Intensificator",         eur: 36.32 },
-  { id: 21, name: "Chiseled by G Gentlemen",         size: "15 mL",  type: "Intensificator",         eur: 5.14  },
-  { id: 22, name: "Color Crush",                     size: "250 mL", type: "Bronzant natural",       eur: 20.21 },
-  { id: 23, name: "Color Crush",                     size: "15 mL",  type: "Bronzant natural",       eur: 3.00  },
-  { id: 24, name: "Confident by G Gentlemen",        size: "250 mL", type: "Bronzant natural",       eur: 28.82 },
-  { id: 25, name: "Confident by G Gentlemen",        size: "15 mL",  type: "Bronzant natural",       eur: 3.98  },
-  { id: 26, name: "Daringly Dark",                   size: "250 mL", type: "Intensificator",         eur: 18.42 },
-  { id: 27, name: "Daringly Dark",                   size: "15 mL",  type: "Intensificator",         eur: 2.77  },
-  { id: 28, name: "Dark Legs",                       size: "250 mL", type: "Bronzant picioare",      eur: 15.53 },
-  { id: 29, name: "Dark Legs",                       size: "15 mL",  type: "Bronzant picioare",      eur: 2.25  },
-  { id: 30, name: "Deviously Bronze",                size: "250 mL", type: "Bronzant DHA",           eur: 25.35 },
-  { id: 31, name: "Deviously Bronze",                size: "15 mL",  type: "Bronzant DHA",           eur: 3.98  },
-  { id: 32, name: "Fearlessly Bronze",               size: "250 mL", type: "DHA / Bronzant natural", eur: 21.60 },
-  { id: 33, name: "Fearlessly Bronze",               size: "15 mL",  type: "DHA / Bronzant natural", eur: 3.18  },
-  { id: 34, name: "Feelin Beachy",                   size: "250 mL", type: "Bronzant DHA",           eur: 27.66 },
-  { id: 35, name: "Feelin Beachy",                   size: "15 mL",  type: "Bronzant DHA",           eur: 4.16  },
-  { id: 36, name: "Gelee Accelerator",               size: "250 mL", type: "Intensificator",         eur: 13.80 },
-  { id: 37, name: "Gelee Accelerator",               size: "15 mL",  type: "Intensificator",         eur: 2.31  },
-  { id: 38, name: "Hardcore Bronze",                 size: "250 mL", type: "Bronzant natural",       eur: 23.04 },
-  { id: 39, name: "Hardcore Bronze",                 size: "15 mL",  type: "Bronzant natural",       eur: 3.41  },
-  { id: 40, name: "Hot! Bronze",                     size: "250 mL", type: "Bronzant natural",       eur: 44.47 },
-  { id: 41, name: "Hot! Bronze",                     size: "15 mL",  type: "Bronzant natural",       eur: 3.73  },
-  { id: 42, name: "Hot! DHA Bronzer",                size: "250 mL", type: "Bronzant DHA",           eur: 49.43 },
-  { id: 43, name: "Hot! DHA Bronzer",                size: "15 mL",  type: "Bronzant DHA",           eur: 7.62  },
-  { id: 44, name: "Hot! Hybrid",                     size: "250 mL", type: "Intensificator hibrid",  eur: 40.43 },
-  { id: 45, name: "Hot! Hybrid",                     size: "15 mL",  type: "Intensificator hibrid",  eur: 6.29  },
-  { id: 46, name: "Hot! Intensifier",                size: "250 mL", type: "Intensificator",         eur: 36.96 },
-  { id: 47, name: "Hot! Intensifier",                size: "15 mL",  type: "Intensificator",         eur: 4.56  },
-  { id: 48, name: "Magnetize",                       size: "300 mL", type: "Hibrid + Bronzant DHA",  eur: 66.99 },
-  { id: 49, name: "Magnetize",                       size: "15 mL",  type: "Hibrid + Bronzant DHA",  eur: 10.05 },
-  { id: 50, name: "Mineral Haze",                    size: "300 mL", type: "Bronzant DHA",           eur: 57.63 },
-  { id: 51, name: "Mineral Haze",                    size: "15 mL",  type: "Bronzant DHA",           eur: 9.01  },
-  { id: 52, name: "Nothing But Bronze Charcoal",     size: "250 mL", type: "Bronzant DHA",           eur: 31.07 },
-  { id: 53, name: "Nothing But Bronze Charcoal",     size: "15 mL",  type: "Bronzant DHA",           eur: 4.85  },
-  { id: 54, name: "Nothing But Bronze Coconut",      size: "250 mL", type: "Bronzant natural",       eur: 29.11 },
-  { id: 55, name: "Nothing But Bronze Coconut",      size: "15 mL",  type: "Bronzant natural",       eur: 4.56  },
-  { id: 56, name: "Oasis Heat",                      size: "250 mL", type: "Bronzant Tingle",        eur: 43.89 },
-  { id: 57, name: "Oasis Heat",                      size: "15 mL",  type: "Bronzant Tingle",        eur: 6.58  },
-  { id: 58, name: "Ocean Views",                     size: "250 mL", type: "Intensificator",         eur: 42.39 },
-  { id: 59, name: "Ocean Views",                     size: "15 mL",  type: "Intensificator",         eur: 6.12  },
-  { id: 60, name: "Party Animal",                    size: "250 mL", type: "Intensificator",         eur: 29.91 },
-  { id: 61, name: "Party Animal",                    size: "15 mL",  type: "Intensificator",         eur: 3.98  },
-  { id: 62, name: "Peptide Pro",                     size: "250 mL", type: "Intensificator Hibrid",  eur: 22.52 },
-  { id: 63, name: "Peptide Pro",                     size: "15 mL",  type: "Intensificator Hibrid",  eur: 3.35  },
-  { id: 64, name: "Peptide Pro Hybrid Facial",       size: "90 mL",  type: "Intensificator fata",    eur: 16.52 },
-  { id: 65, name: "Peptide Pro Hybrid Facial",       size: "3 mL",   type: "Intensificator fata",    eur: 2.54  },
-  { id: 66, name: "Pure Heat",                       size: "250 mL", type: "Tingle Hot Citrus",      eur: 21.89 },
-  { id: 67, name: "Pure Heat",                       size: "15 mL",  type: "Tingle Hot Citrus",      eur: 3.41  },
-  { id: 68, name: "Rooftop Nights",                  size: "250 mL", type: "Bronzant Instant+DHA",   eur: 45.85 },
-  { id: 69, name: "Rooftop Nights",                  size: "15 mL",  type: "Bronzant Instant+DHA",   eur: 6.70  },
-  { id: 70, name: "Rugged by G Gentlemen",           size: "250 mL", type: "Bronzant DHA",           eur: 34.59 },
-  { id: 71, name: "Rugged by G Gentlemen",           size: "15 mL",  type: "Bronzant DHA",           eur: 5.14  },
-  { id: 72, name: "Sinfully Bronze",                 size: "250 mL", type: "Intensificator fata",    eur: 18.25 },
-  { id: 73, name: "Sinfully Bronze",                 size: "15 mL",  type: "Intensificator fata",    eur: 2.60  },
-  { id: 74, name: "Smooth Faces",                    size: "118 mL", type: "Intensificator fata",    eur: 14.90 },
-  { id: 75, name: "Smooth Faces",                    size: "15 mL",  type: "Intensificator fata",    eur: 2.08  },
-  { id: 76, name: "Tropical Retreat DHA Bronzer",    size: "300 mL", type: "Bronzant DHA",           eur: 29.57 },
-  { id: 77, name: "Tropical Retreat DHA Bronzer",    size: "15 mL",  type: "Bronzant DHA",           eur: 4.50  },
-  { id: 78, name: "Tropical Retreat Intensifier",    size: "300 mL", type: "Intensificator",         eur: 27.84 },
-  { id: 79, name: "Tropical Retreat Intensifier",    size: "15 mL",  type: "Intensificator",         eur: 4.04  },
-  { id: 80, name: "Wild Obsession",                  size: "250 mL", type: "Bronzant Instant+DHA",   eur: 30.95 },
-  { id: 81, name: "Wild Obsession",                  size: "15 mL",  type: "Bronzant Instant+DHA",   eur: 4.62  },
+const AG_PRODUCTS = [
+  { id:1,  name:"Accelerator Extreme",             size:"250 mL", type:"Bronzant DHA",           ron:75.90 },
+  { id:2,  name:"Accelerator Extreme",             size:"15 mL",  type:"Bronzant DHA",           ron:11.75 },
+  { id:3,  name:"Accelerator K",                   size:"250 mL", type:"Intensificator",         ron:69.50 },
+  { id:4,  name:"Accelerator K",                   size:"15 mL",  type:"Intensificator",         ron:10.14 },
+  { id:5,  name:"Accelerator Lotion",              size:"250 mL", type:"Intensificator",         ron:63.88 },
+  { id:6,  name:"Accelerator Lotion",              size:"15 mL",  type:"Intensificator",         ron:10.42 },
+  { id:7,  name:"Accelerator Lot. Aniversare 40",  size:"250 mL", type:"Intensificator",         ron:75.40 },
+  { id:8,  name:"Accelerator Lot. Aniversare 40",  size:"15 mL",  type:"Intensificator",         ron:10.69 },
+  { id:9,  name:"Accelerator Spray",               size:"250 mL", type:"Intensificator",         ron:63.88 },
+  { id:10, name:"Adorably Bronze",                 size:"250 mL", type:"DHA / Bronzant natural", ron:105.30 },
+  { id:11, name:"Adorably Bronze",                 size:"15 mL",  type:"DHA / Bronzant natural", ron:14.44 },
+  { id:12, name:"Bold by G Gentlemen",             size:"250 mL", type:"Bronzant DHA",           ron:159.83 },
+  { id:13, name:"Bold by G Gentlemen",             size:"15 mL",  type:"Bronzant DHA",           ron:23.79 },
+  { id:14, name:"Bronze Accelerator",              size:"250 mL", type:"Bronzant natural",       ron:72.73 },
+  { id:15, name:"Bronze Accelerator",              size:"15 mL",  type:"Bronzant natural",       ron:10.69 },
+  { id:16, name:"Charmingly Bronze",               size:"250 mL", type:"Bronzant natural",       ron:102.67 },
+  { id:17, name:"Charmingly Bronze",               size:"15 mL",  type:"Bronzant natural",       ron:15.78 },
+  { id:18, name:"Cheeky Brown",                    size:"250 mL", type:"Bronzant natural",       ron:87.67 },
+  { id:19, name:"Cheeky Brown",                    size:"15 mL",  type:"Bronzant natural",       ron:13.10 },
+  { id:20, name:"Chiseled by G Gentlemen",         size:"250 mL", type:"Intensificator",         ron:168.12 },
+  { id:21, name:"Chiseled by G Gentlemen",         size:"15 mL",  type:"Intensificator",         ron:23.79 },
+  { id:22, name:"Color Crush",                     size:"250 mL", type:"Bronzant natural",       ron:93.55 },
+  { id:23, name:"Color Crush",                     size:"15 mL",  type:"Bronzant natural",       ron:13.89 },
+  { id:24, name:"Confident by G Gentlemen",        size:"250 mL", type:"Bronzant natural",       ron:133.42 },
+  { id:25, name:"Confident by G Gentlemen",        size:"15 mL",  type:"Bronzant natural",       ron:18.42 },
+  { id:26, name:"Daringly Dark",                   size:"250 mL", type:"Intensificator",         ron:85.24 },
+  { id:27, name:"Daringly Dark",                   size:"15 mL",  type:"Intensificator",         ron:12.82 },
+  { id:28, name:"Dark Legs",                       size:"250 mL", type:"Bronzant picioare",      ron:71.90 },
+  { id:29, name:"Dark Legs",                       size:"15 mL",  type:"Bronzant picioare",      ron:10.42 },
+  { id:30, name:"Deviously Bronze",                size:"250 mL", type:"Bronzant DHA",           ron:117.37 },
+  { id:31, name:"Deviously Bronze",                size:"15 mL",  type:"Bronzant DHA",           ron:18.42 },
+  { id:32, name:"Fearlessly Bronze",               size:"250 mL", type:"DHA / Bronzant natural", ron:99.98 },
+  { id:33, name:"Fearlessly Bronze",               size:"15 mL",  type:"DHA / Bronzant natural", ron:14.72 },
+  { id:34, name:"Feelin Beachy",                   size:"250 mL", type:"Bronzant DHA",           ron:128.03 },
+  { id:35, name:"Feelin Beachy",                   size:"15 mL",  type:"Bronzant DHA",           ron:19.25 },
+  { id:36, name:"Gelee Accelerator",               size:"250 mL", type:"Intensificator",         ron:63.88 },
+  { id:37, name:"Gelee Accelerator",               size:"15 mL",  type:"Intensificator",         ron:10.69 },
+  { id:38, name:"Hardcore Bronze",                 size:"250 mL", type:"Bronzant natural",       ron:106.63 },
+  { id:39, name:"Hardcore Bronze",                 size:"15 mL",  type:"Bronzant natural",       ron:15.78 },
+  { id:40, name:"Hot! Bronze",                     size:"250 mL", type:"Bronzant natural",       ron:205.86 },
+  { id:41, name:"Hot! Bronze",                     size:"15 mL",  type:"Bronzant natural",       ron:17.27 },
+  { id:42, name:"Hot! DHA Bronzer",                size:"250 mL", type:"Bronzant DHA",           ron:228.77 },
+  { id:43, name:"Hot! DHA Bronzer",                size:"15 mL",  type:"Bronzant DHA",           ron:35.27 },
+  { id:44, name:"Hot! Hybrid",                     size:"250 mL", type:"Intensificator hibrid",  ron:187.15 },
+  { id:45, name:"Hot! Hybrid",                     size:"15 mL",  type:"Intensificator hibrid",  ron:29.12 },
+  { id:46, name:"Hot! Intensifier",                size:"250 mL", type:"Intensificator",         ron:171.15 },
+  { id:47, name:"Hot! Intensifier",                size:"15 mL",  type:"Intensificator",         ron:21.11 },
+  { id:48, name:"Magnetize",                       size:"300 mL", type:"Hibrid + Bronzant DHA",  ron:310.05 },
+  { id:49, name:"Magnetize",                       size:"15 mL",  type:"Hibrid + Bronzant DHA",  ron:46.52 },
+  { id:50, name:"Mineral Haze",                    size:"300 mL", type:"Bronzant DHA",           ron:266.75 },
+  { id:51, name:"Mineral Haze",                    size:"15 mL",  type:"Bronzant DHA",           ron:41.70 },
+  { id:52, name:"Nothing But Bronze Charcoal",     size:"250 mL", type:"Bronzant DHA",           ron:143.87 },
+  { id:53, name:"Nothing But Bronze Charcoal",     size:"15 mL",  type:"Bronzant DHA",           ron:22.45 },
+  { id:54, name:"Nothing But Bronze Coconut",      size:"250 mL", type:"Bronzant natural",       ron:134.73 },
+  { id:55, name:"Nothing But Bronze Coconut",      size:"15 mL",  type:"Bronzant natural",       ron:21.11 },
+  { id:56, name:"Oasis Heat",                      size:"250 mL", type:"Bronzant Tingle",        ron:203.20 },
+  { id:57, name:"Oasis Heat",                      size:"15 mL",  type:"Bronzant Tingle",        ron:30.47 },
+  { id:58, name:"Ocean Views",                     size:"250 mL", type:"Intensificator",         ron:196.26 },
+  { id:59, name:"Ocean Views",                     size:"15 mL",  type:"Intensificator",         ron:28.33 },
+  { id:60, name:"Party Animal",                    size:"250 mL", type:"Intensificator",         ron:138.47 },
+  { id:61, name:"Party Animal",                    size:"15 mL",  type:"Intensificator",         ron:18.42 },
+  { id:62, name:"Peptide Pro",                     size:"250 mL", type:"Intensificator Hibrid",  ron:104.24 },
+  { id:63, name:"Peptide Pro",                     size:"15 mL",  type:"Intensificator Hibrid",  ron:15.51 },
+  { id:64, name:"Peptide Pro Hybrid Facial",       size:"90 mL",  type:"Intensificator fata",    ron:76.49 },
+  { id:65, name:"Peptide Pro Hybrid Facial",       size:"3 mL",   type:"Intensificator fata",    ron:11.75 },
+  { id:66, name:"Pure Heat",                       size:"250 mL", type:"Tingle Hot Citrus",      ron:101.35 },
+  { id:67, name:"Pure Heat",                       size:"15 mL",  type:"Tingle Hot Citrus",      ron:15.78 },
+  { id:68, name:"Rooftop Nights",                  size:"250 mL", type:"Bronzant Instant+DHA",   ron:212.30 },
+  { id:69, name:"Rooftop Nights",                  size:"15 mL",  type:"Bronzant Instant+DHA",   ron:31.01 },
+  { id:70, name:"Rugged by G Gentlemen",           size:"250 mL", type:"Bronzant DHA",           ron:160.10 },
+  { id:71, name:"Rugged by G Gentlemen",           size:"15 mL",  type:"Bronzant DHA",           ron:23.79 },
+  { id:72, name:"Sinfully Bronze",                 size:"250 mL", type:"Intensificator fata",    ron:84.52 },
+  { id:73, name:"Sinfully Bronze",                 size:"15 mL",  type:"Intensificator fata",    ron:12.03 },
+  { id:74, name:"Smooth Faces",                    size:"118 mL", type:"Intensificator fata",    ron:68.97 },
+  { id:75, name:"Smooth Faces",                    size:"15 mL",  type:"Intensificator fata",    ron:9.63 },
+  { id:76, name:"Tropical Retreat DHA Bronzer",    size:"300 mL", type:"Bronzant DHA",           ron:136.92 },
+  { id:77, name:"Tropical Retreat DHA Bronzer",    size:"15 mL",  type:"Bronzant DHA",           ron:20.83 },
+  { id:78, name:"Tropical Retreat Intensifier",    size:"300 mL", type:"Intensificator",         ron:128.89 },
+  { id:79, name:"Tropical Retreat Intensifier",    size:"15 mL",  type:"Intensificator",         ron:18.70 },
+  { id:80, name:"Wild Obsession",                  size:"250 mL", type:"Bronzant Instant+DHA",   ron:143.33 },
+  { id:81, name:"Wild Obsession",                  size:"15 mL",  type:"Bronzant Instant+DHA",   ron:21.38 },
 ];
 
-const TYPE_COLORS = {
-  "Bronzant DHA":           { color: "#c4520a", dot: "#f97316", bg: "#fff0e6" },
-  "DHA / Bronzant natural": { color: "#c4520a", dot: "#f97316", bg: "#fff0e6" },
-  "Bronzant Instant+DHA":   { color: "#c4520a", dot: "#f97316", bg: "#fff0e6" },
-  "Hibrid + Bronzant DHA":  { color: "#c4520a", dot: "#f97316", bg: "#fff0e6" },
-  "Bronzant natural":       { color: "#92700a", dot: "#eab308", bg: "#fef9ec" },
-  "Intensificator":         { color: "#166534", dot: "#22c55e", bg: "#f0fdf4" },
-  "Intensificator Hibrid":  { color: "#166534", dot: "#22c55e", bg: "#f0fdf4" },
-  "Intensificator hibrid":  { color: "#166534", dot: "#22c55e", bg: "#f0fdf4" },
-  "Intensificator fata":    { color: "#1d4ed8", dot: "#3b82f6", bg: "#eff6ff" },
-  "Bronzant Tingle":        { color: "#be123c", dot: "#f43f5e", bg: "#fff1f2" },
-  "Tingle Hot Citrus":      { color: "#be123c", dot: "#f43f5e", bg: "#fff1f2" },
-  "Bronzant picioare":      { color: "#6d28d9", dot: "#8b5cf6", bg: "#f5f3ff" },
-};
-const getTS = (t) => TYPE_COLORS[t] || { color: "#374151", dot: "#6b7280", bg: "#f3f4f6" };
-const ALL_TYPES = ["Toate", ...Array.from(new Set(ALL_PRODUCTS.map(p => p.type))).sort()];
-const ALL_SIZES = ["Toate", "250 mL", "300 mL", "118 mL", "90 mL", "15 mL", "3 mL"];
-const isLarge = (s) => ["250 mL","300 mL","118 mL","90 mL"].includes(s);
+// ─── DEVOTED CREATIONS & INKY COSMETICS & CONSUMABILE ──────────────
+const DC_PRODUCTS = [
+  { id:680,  name:"Black Velvet",                                      brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2019/12/black-velvet.png",                       variations:[{size:"360 ml",ron:175.63},{size:"15 ml",ron:13.50}] },
+  { id:683,  name:"Indigo Illusion",                                   brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2019/12/indigo-illusion.png",                     variations:[] },
+  { id:691,  name:"#Tanlife",                                          brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2019/12/tanlife.png",                            variations:[{size:"15 ml",ron:0}] },
+  { id:3358, name:"Beyond the Beach",                                  brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/08/beyond-the-beach-400x500-1.png",          variations:[{size:"360 ml",ron:178.50},{size:"15 ml",ron:13.50}] },
+  { id:3363, name:"Filthy Rich",                                       brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/08/filthy-rich-400x500-1.png",               variations:[{size:"360 ml",ron:179.61},{size:"15 ml",ron:13.15}] },
+  { id:3367, name:"Neon Rose",                                         brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/08/neon_rose_400x500.png",                   variations:[{size:"360 ml",ron:136.63},{size:"15 ml",ron:7.97}] },
+  { id:3371, name:"Electric Aura",                                     brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/08/electric-aura-400x500-1.png",             variations:[{size:"15 ml",ron:10.70}] },
+  { id:3376, name:"Bronze Confidential",                               brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/08/bronze-confidential-400x500-1.png",       variations:[{size:"360 ml",ron:183.38},{size:"15 ml",ron:13.15}] },
+  { id:3494, name:"Sunshine Superstar",                                brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/sunshine-superstar-400x500-1.png",        variations:[] },
+  { id:3496, name:"Sunset Strip",                                      brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/sunset-strip-400x500-1.png",              variations:[] },
+  { id:3498, name:"Dark AF",                                           brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc-dark-af-400x500-1.png",                variations:[] },
+  { id:3500, name:"Opalescent",                                        brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/opalescent-400x500-1.png",                variations:[] },
+  { id:3504, name:"Devoted Herbal CBD Special Edition",                brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc-herbal-tanning-lotion-se-400x500-1.png", variations:[] },
+  { id:3506, name:"Devoted Herbal CBD Tanning Lotion",                brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc-herbal-tanning-lotion-400x500-1.png",  variations:[] },
+  { id:3508, name:"Turquoise Temptation",                              brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/turquoise_temptation_400x500.png",         variations:[] },
+  { id:3510, name:"Fuel My Fire",                                      brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/fuel-my-fire.png",                        variations:[] },
+  { id:3512, name:"Maliblue",                                          brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/maliblue.png",                            variations:[] },
+  { id:3515, name:"Color Karma",                                       brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc_color_karma.png",                      variations:[] },
+  { id:3518, name:"Somewhere on a Beach",                              brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc_somewhere_on_a_beach.png",             variations:[] },
+  { id:3520, name:"Yes Way Rosé",                                      brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc_yes_way_rose.png",                     variations:[] },
+  { id:3522, name:"Woke Up Like This",                                 brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc_woke_up_like_this.png",                variations:[] },
+  { id:3524, name:"Blonde Obsession",                                  brand:"Devoted Creations", cat:"Devoted Creations Line",  image:"https://bronzat.ro/wp-content/uploads/2023/09/dc_blonde_obsession.png",                 variations:[] },
 
-function Img({ name, size }) {
-  const [err, setErr] = useState(false);
-  const imgs = IMAGES[name];
-  const large = isLarge(size);
+  { id:3381, name:"White 2 Bronze Coconut",                            brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-coconut-400x500-1.png",               variations:[{size:"251 ml",ron:101.00},{size:"15 ml",ron:9.85}] },
+  { id:3387, name:"White 2 Bronze Coastal",                            brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-bronze-coastal-400x500-1.png",         variations:[{size:"251 ml",ron:101.00},{size:"15 ml",ron:9.85}] },
+  { id:3391, name:"White 2 Bronze Extreme",                            brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-extreme-400x500-1.png",                variations:[{size:"251 ml",ron:101.00},{size:"15 ml",ron:9.85}] },
+  { id:3395, name:"White 2 Bronze Ink",                                brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-ink-400x500-1.png",                    variations:[{size:"251 ml",ron:101.00},{size:"15 ml",ron:9.85}] },
+  { id:3399, name:"White 2 Bronze Pure Pomegranate",                   brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-pomegranate-400x500-1.png",            variations:[{size:"251 ml",ron:101.00},{size:"15 ml",ron:9.85}] },
+  { id:3403, name:"White 2 Bronze Summer",                             brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-summer-400x500-1.png",                 variations:[{size:"251 ml",ron:101.00},{size:"15 ml",ron:9.85}] },
+  { id:3407, name:"White 2 Bronze Tingle",                             brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/08/w2b-tingle-400x500-1.png",                 variations:[{size:"15 ml",ron:9.85}] },
+  { id:4337, name:"White 2 Bronze Butter",                             brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2024/06/white2bronze-Butter-devoted.png",           variations:[{size:"250 ml",ron:101.03},{size:"15 ml",ron:9.75}] },
+  { id:4437, name:"White 2 Bronze Watermelon Gelée",                   brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2025/01/produs-bronzat-watermelon-gelee.png",       variations:[{size:"250 ml",ron:101.03},{size:"15 ml",ron:9.75}] },
+  { id:5423, name:"White 2 Bronze Wave",                               brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2025/12/White-2-Bronze-Wave-plic.jpg",              variations:[{size:"15 ml",ron:9.75}] },
+  { id:4475, name:"DC Sun Lotion with Shimmer",                        brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2025/03/sun-lotion-with-skimmer88561.webp",         variations:[{size:"250 ml",ron:69.33}] },
+  { id:4120, name:"Kit White 2 Bronze Promo (4 flacoane + 16 plicuri)",brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2024/02/2024-White-2-Bronze-Promo-Kit.jpg",         variations:[{size:"Kit",ron:403.36}] },
+  { id:4442, name:"Kit Promo 2025 White 2 Bronze",                     brand:"Devoted Creations", cat:"DC Soho Collection",      image:"https://bronzat.ro/wp-content/uploads/2025/01/kit-promo-2025-w2b.png",                   variations:[{size:"Kit",ron:606.00}] },
 
-  // Alege poza corecta in functie de marime
-  let src = null;
-  if (imgs) {
-    if (large) {
-      src = imgs.large || null;
-    } else {
-      // plic: foloseste "small" daca exista, altfel "large"
-      src = imgs.small || imgs.large || null;
-    }
-  }
+  { id:723,  name:"All Black Everything",                              brand:"Devoted Creations", cat:"Glamour Collection",      image:"https://bronzat.ro/wp-content/uploads/2019/12/all_black_everything.png",                 variations:[{size:"250 ml",ron:65.00},{size:"15 ml",ron:7.85}] },
+  { id:960,  name:"Dare to be Dark",                                   brand:"Devoted Creations", cat:"Glamour Collection",      image:"https://bronzat.ro/wp-content/uploads/2022/03/dare-to-be-dark-400x500-1.png",             variations:[{size:"250 ml",ron:65.00},{size:"15 ml",ron:7.85}] },
+  { id:3430, name:"Crush On Color",                                    brand:"Devoted Creations", cat:"Glamour Collection",      image:"https://bronzat.ro/wp-content/uploads/2023/09/crush-on-color-400x500-1.png",              variations:[{size:"250 ml",ron:65.00},{size:"15 ml",ron:7.85}] },
+  { id:4410, name:"Kit Glamour Collection 2023",                       brand:"Devoted Creations", cat:"Glamour Collection",      image:"https://bronzat.ro/wp-content/uploads/2024/09/dc-glamour-collection-2023.png",            variations:[{size:"Kit",ron:182.77}] },
 
-  const show = src && !err;
-  return (
-    <div style={{ width: 72, height: 72, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <img
-        src={show ? src : AG_LOGO}
-        alt={name}
-        style={{ width: "100%", height: "100%", objectFit: "contain", opacity: show ? 1 : 0.35 }}
-        onError={() => setErr(true)}
-      />
-    </div>
-  );
-}
+  { id:740,  name:"Crushing It",                                       brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2019/12/crushing_it_hr.png",                       variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:750,  name:"DC Accelerator",                                    brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2019/12/dc_accelerator_hr.png",                    variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:752,  name:"Fast Track 2 Black",                                brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2019/12/fast_track_2_black_high_res.png",           variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:753,  name:"Long Overdue",                                      brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2019/12/long_overdue.png",                         variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:755,  name:"Power Player",                                      brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2019/12/power_player_high_res.png",                variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:756,  name:"Tan Mode",                                          brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2019/12/tan_mode_high_res.png",                    variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:962,  name:"Vacay Vibes",                                       brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2022/03/vacay-vibes-400x500-1.png",                 variations:[{size:"250 ml",ron:54.20},{size:"15 ml",ron:7.50}] },
+  { id:3447, name:"Game Over",                                         brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2023/09/game-over-1.png",                          variations:[{size:"250 ml",ron:50.00},{size:"15 ml",ron:7.50}] },
+  { id:3451, name:"Ride or Tide",                                      brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2023/09/ride-or-tide-400x500-1.png",                variations:[{size:"250 ml",ron:54.50},{size:"15 ml",ron:7.50}] },
+  { id:3459, name:"Cocoa & Shea",                                      brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2023/09/dc_coco_shea_400x500.png",                  variations:[{size:"250 ml",ron:27.50}] },
+  { id:4122, name:"Going Off Tropic",                                  brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2024/02/going-off-tropic-400x500-1.png",            variations:[{size:"251 ml",ron:54.20},{size:"15 ml",ron:7.00}] },
+  { id:4128, name:"Glocation",                                         brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2024/02/glocation-400x500-1.png",                   variations:[{size:"250 ml",ron:33.61}] },
+  { id:4465, name:"Kit 2025 Intensity Collection",                     brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2025/02/2025-Intensity-Collection-Promo-Kit.jpg",   variations:[{size:"Kit",ron:321.00}] },
+  { id:4471, name:"Pier Pressure",                                     brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2025/03/pier_pressure_twin.jpg",                   variations:[{size:"251 ml",ron:56.72},{size:"15 ml",ron:7.00}] },
+  { id:5418, name:"Reef Havoc",                                        brand:"Devoted Creations", cat:"Intensity Line",          image:"https://bronzat.ro/wp-content/uploads/2025/12/crema-bronzare-reef-havoc.jpg",             variations:[{size:"250 ml",ron:56.72},{size:"15 ml",ron:7.00}] },
+
+  { id:728,  name:"Peace, Love & Hemp",                                brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2019/12/Peace-Love-Hemp.png",                      variations:[] },
+  { id:966,  name:"Love & Lemonade",                                   brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/fbc_love_and_lemonade.png",                 variations:[] },
+  { id:968,  name:"Saltwater Sundays",                                 brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/fbc_saltwater_sundays.png",                 variations:[{size:"200 ml",ron:52.50}] },
+  { id:970,  name:"Bourbon & Honey",                                   brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/fbc_bourbon_and_honey.png",                 variations:[{size:"200 ml",ron:48.74}] },
+  { id:972,  name:"Coral Colada",                                      brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/fbc_coral_colada.png",                      variations:[{size:"200 ml",ron:52.50}] },
+  { id:974,  name:"Sugar & Suede",                                     brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/fbc_sugar_suede.png",                       variations:[{size:"200 ml",ron:52.50}] },
+  { id:976,  name:"Coconut Krem",                                      brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/coconut-krem-400x500-1.png",                variations:[{size:"200 ml",ron:52.50}] },
+  { id:978,  name:"Sunkissed Sweet Tea",                               brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/sunkissed-sweet-tea-400x500-1.png",         variations:[] },
+  { id:981,  name:"Butter Rum Bliss",                                  brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2022/03/butter-rum-bliss-400x500-1.png",             variations:[{size:"200 ml",ron:95.60}] },
+  { id:3457, name:"Cloud Kissed",                                      brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2023/09/cloud-kissed-400x500-1.png",                variations:[{size:"200 ml",ron:52.50}] },
+  { id:3461, name:"Frose Fantasy",                                     brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2023/09/frose-fantasy-400x500-1.png",               variations:[{size:"200 ml",ron:52.00}] },
+  { id:3463, name:"Seaside Sunset",                                    brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2023/09/seaside-sunset.png",                        variations:[{size:"200 ml",ron:52.50}] },
+  { id:3465, name:"Enchanted Emerald",                                 brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2023/09/enchanted-emerald-400x500-1.png",           variations:[{size:"200 ml",ron:52.50}] },
+  { id:4346, name:"Salty Lime Slushie",                                brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2024/06/salty-lime-slushie-devoted.png",            variations:[{size:"200 ml",ron:63.00}] },
+  { id:4348, name:"Berries & Brandy",                                  brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2024/06/berries-and-brandy-devoted.png",            variations:[{size:"200 ml",ron:52.10}] },
+  { id:4432, name:"Coco Creamsicle",                                   brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2024/11/coco-creamsicle-produs.jpg",                variations:[{size:"200 ml",ron:63.00}] },
+  { id:4467, name:"Kit 2025 Body Care Collection",                     brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2025/02/2025-Body-Care-Collection-Kit.jpg",         variations:[{size:"Kit",ron:333.73}] },
+  { id:4483, name:"Coconut Krém After Sun Body Refresher",             brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2025/04/Coconut-Krem-Sun-Refresher-Sun-Refresher-Devoted-Creations.jpg", variations:[{size:"200 ml",ron:50.00}] },
+  { id:4485, name:"Coco Creamsicle After Sun Refresher Spray",         brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2025/04/Devoted_Creations_Coco_Creamsicle_After_Sun_Refresher.jpg",     variations:[{size:"200 ml",ron:50.00}] },
+  { id:4487, name:"Cloud Kissed After Sun Refresher Spray",            brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2025/04/Cloud-Kissed-After-Sun-Refresher-Spray.jpg",                     variations:[{size:"200 ml",ron:50.00}] },
+  { id:5426, name:"Pacific Pearl Moisturizer",                         brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2025/12/Pacific-Pearl-Moisturizer-–-Velvety-Soft-Barrier-Boosting-Hydrator-1.jpg", variations:[{size:"200 ml",ron:59.50}] },
+  { id:5429, name:"Nantucket Nectar",                                  brand:"Devoted Creations", cat:"Face and Body Care",      image:"https://bronzat.ro/wp-content/uploads/2025/12/crema-bronzare-nantucket-nectar-devoted-creations.jpg",           variations:[{size:"200 ml",ron:59.50}] },
+
+  { id:3455, name:"Collagenetics Restorative",                         brand:"Devoted Creations", cat:"Collagenetics Line",      image:"https://bronzat.ro/wp-content/uploads/2023/09/collagenetics_restorative_moisturizer_400x500.png", variations:[{size:"200 ml",ron:100.00}] },
+
+  { id:956,  name:"Travel Lover 100x",                                 brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2022/02/travel2.png",                             variations:[{size:"150 ml",ron:24.37},{size:"15 ml",ron:4.09}] },
+  { id:958,  name:"Fit Achiever 150x",                                 brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2022/02/fit2.png",                               variations:[{size:"150 ml",ron:24.58},{size:"15 ml",ron:4.10}] },
+  { id:1019, name:"Joy Maker 200x",                                    brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2022/03/joy1-dfs.png",                           variations:[{size:"150 ml",ron:32.50},{size:"15 ml",ron:5.50}] },
+  { id:1021, name:"Hot Freak 150x",                                    brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2022/03/hot-freak.png",                          variations:[{size:"150 ml",ron:24.37},{size:"15 ml",ron:4.50}] },
+  { id:1025, name:"Rainbow Whisperer 100X",                            brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2023/05/Rainbow-tubasaszetka-kleks.png",          variations:[{size:"150 ml",ron:32.50},{size:"15 ml",ron:5.50}] },
+  { id:1028, name:"Dark Boss 250X",                                    brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2023/05/DarkBoss-tubasaszetka-kleks.png",         variations:[{size:"150 ml",ron:29.27},{size:"15 ml",ron:6.01}] },
+  { id:1030, name:"Free Spirit 100X",                                  brand:"Inky Cosmetics",    cat:"Inky Cosmetics",          image:"https://bronzat.ro/wp-content/uploads/2023/05/free-spirit-tubasaszetka-kleks.png",      variations:[{size:"150 ml",ron:32.50},{size:"15 ml",ron:4.09}] },
+
+  { id:777,  name:"Dezinfectant Tegee Sol",                            brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/dezinfectant-tegee-sol.jpg",               variations:[{size:"1L",ron:63.02}] },
+  { id:781,  name:"Suport Cap Acryl",                                  brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/jk-licht_kopfpolster_acryl_72dpi.jpg",     variations:[{size:"buc",ron:0}] },
+  { id:791,  name:"Covoraș Cabină",                                    brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/jk-licht_fussmatte_gelb_72dpi.jpg",         variations:[{size:"buc",ron:0}] },
+  { id:801,  name:"Ochelari Super Sunnies",                            brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/jk-licht_googles_magenta_72dpi.jpg",        variations:[{size:"buc",ron:0}] },
+  { id:803,  name:"Aqua Fresh și Arome",                               brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/img_00033_g.jpg",                          variations:[{size:"buc",ron:0}] },
+  { id:806,  name:"Ochelari Podz Designer Classic",                    brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/podz_designer-classic-group.png",           variations:[{size:"buc",ron:0}] },
+  { id:808,  name:"Ochelari Podz Classic",                             brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/podz_classic-podz.png",                    variations:[{size:"buc",ron:0}] },
+  { id:810,  name:"Ochelari Podz Fashion",                             brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2019/12/podz_fashion-podz.png",                    variations:[{size:"buc",ron:0}] },
+  { id:983,  name:"Ochelari Soft Podz",                                brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2022/03/promotional-soft-podz-text.png",            variations:[{size:"buc",ron:0}] },
+  { id:992,  name:"Ochelari Flex Podz",                                brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2022/03/flex-podz-1.png",                          variations:[{size:"buc",ron:0}] },
+  { id:994,  name:"Ochelari Redlight Soft Podz",                       brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2022/03/podz_redlight-soft-podz-opaque-1.png",     variations:[{size:"buc",ron:0}] },
+  { id:997,  name:"Ochelari Redlight Snap Podz",                       brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2022/03/snap-podz.png",                            variations:[{size:"buc",ron:0}] },
+  { id:999,  name:"Ochelari Fashion Podz",                             brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2022/03/fashion-podz.png",                         variations:[{size:"buc",ron:0}] },
+  { id:3583, name:"Apă Dublu Distilată Aqua Fresh",                    brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2023/09/aquafresh_jpg.webp",                       variations:[{size:"buc",ron:0}] },
+  { id:3585, name:"Suport Cap Burete",                                 brand:"Consumabile",       cat:"Igienă și Accesorii",     image:"https://bronzat.ro/wp-content/uploads/2023/09/headrest_magenta_1_jpg.webp",               variations:[{size:"buc",ron:0}] },
+];
+
+// ─── CATEGORII PRINCIPALE ──────────────────────────────────────────
+const MAIN_CATS = [
+  { key:"australian-gold", label:"🌞 Australian Gold",     color:"#c8922a" },
+  { key:"devoted",         label:"💜 Devoted Creations",   color:"#7c3aed" },
+  { key:"inky",            label:"🖋️ Inky Cosmetics",      color:"#0ea5e9" },
+  { key:"consumabile",     label:"🧹 Consumabile",          color:"#16a34a" },
+];
+
+const AG_SUBCATS = ["Toate", ...Array.from(new Set(AG_PRODUCTS.map(p => p.type))).sort()];
+const DC_SUBCATS = ["Toate", "Devoted Creations Line", "DC Soho Collection", "Glamour Collection", "Intensity Line", "Face and Body Care", "Collagenetics Line"];
 
 const GOLD = "#c8922a";
 const DARK = "#1a1208";
 
+// ─── HELPERS ───────────────────────────────────────────────────────
+function getAgImg(name, size) {
+  const imgs = AG_IMAGES[name];
+  if (!imgs) return null;
+  const isSmall = size === "15 mL" || size === "3 mL";
+  return isSmall ? (imgs.small || imgs.large) : imgs.large;
+}
+
+function ImgBox({ src, alt, fallback }) {
+  const [err, setErr] = useState(false);
+  const s = (!err && src) ? src : fallback;
+  return (
+    <div style={{ width:64, height:64, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <img src={s} alt={alt} style={{ width:"100%", height:"100%", objectFit:"contain", opacity: (!err && src) ? 1 : 0.3 }} onError={() => setErr(true)} />
+    </div>
+  );
+}
+
 export default function App() {
-  const [search, setSearch] = useState("");
+  const [mainCat, setMainCat]     = useState("australian-gold");
+  const [subCat, setSubCat]       = useState("Toate");
+  const [search, setSearch]       = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [filterType, setFilterType] = useState("Toate");
-  const [filterSize, setFilterSize] = useState("Toate");
-  const [sortBy, setSortBy] = useState("name");
   const [quantities, setQuantities] = useState({});
-  const [cart, setCart] = useState([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [addedIds, setAddedIds] = useState({});
+  const [cart, setCart]           = useState([]);
+  const [cartOpen, setCartOpen]   = useState(false);
+  const [addedIds, setAddedIds]   = useState({});
   const [orderSent, setOrderSent] = useState(false);
 
+  // Subcategorii dinamice in functie de categoria principala
+  const subcats = useMemo(() => {
+    if (mainCat === "australian-gold") return AG_SUBCATS;
+    if (mainCat === "devoted") return DC_SUBCATS;
+    return ["Toate"];
+  }, [mainCat]);
+
+  // Schimba categoria principala si reseteaza subcategoria
+  const switchMainCat = (key) => { setMainCat(key); setSubCat("Toate"); setSearch(""); };
+
+  // Lista de produse filtrata
   const filtered = useMemo(() => {
-    let list = ALL_PRODUCTS.filter(p =>
-      p.name.toLowerCase().includes(search.toLowerCase()) &&
-      (filterType === "Toate" || p.type === filterType) &&
-      (filterSize === "Toate" || p.size === filterSize)
+    const q = search.toLowerCase();
+    if (mainCat === "australian-gold") {
+      return AG_PRODUCTS.filter(p =>
+        p.name.toLowerCase().includes(q) &&
+        (subCat === "Toate" || p.type === subCat)
+      );
+    }
+    const brand = mainCat === "devoted" ? "Devoted Creations" : mainCat === "inky" ? "Inky Cosmetics" : "Consumabile";
+    return DC_PRODUCTS.filter(p =>
+      p.brand === brand &&
+      p.name.toLowerCase().includes(q) &&
+      (subCat === "Toate" || p.cat === subCat)
     );
-    if (sortBy === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-    else if (sortBy === "pret_asc") list = [...list].sort((a, b) => a.eur - b.eur);
-    else if (sortBy === "pret_desc") list = [...list].sort((a, b) => b.eur - a.eur);
-    return list;
-  }, [search, filterType, filterSize, sortBy]);
+  }, [mainCat, subCat, search]);
 
-  const setQty = (id, val) => setQuantities(q => ({ ...q, [id]: Math.max(0, parseInt(val) || 0) }));
+  const catColor = MAIN_CATS.find(c => c.key === mainCat)?.color || GOLD;
 
-  const addToCart = (product) => {
-    const qty = quantities[product.id] || 1;
+  // ── CART ──
+  const addToCart = (product, varIdx) => {
+    const key = product.id + (varIdx !== undefined ? "_" + varIdx : "");
+    const qty = quantities[key] || 1;
+    const isAg = mainCat === "australian-gold";
+    const name = isAg ? product.name + " " + product.size : product.name;
+    const size = isAg ? product.size : (product.variations[varIdx]?.size || "");
+    const ron  = isAg ? product.ron  : (product.variations[varIdx]?.ron || 0);
+    const img  = isAg ? (getAgImg(product.name, product.size) || AG_LOGO) : product.image;
     setCart(c => {
-      const ex = c.find(i => i.id === product.id);
-      return ex ? c.map(i => i.id === product.id ? { ...i, qty: i.qty + qty } : i) : [...c, { ...product, qty }];
+      const ex = c.find(i => i.key === key);
+      return ex ? c.map(i => i.key === key ? { ...i, qty: i.qty + qty } : i) : [...c, { key, name, size, ron, img, qty }];
     });
-    setQuantities(q => ({ ...q, [product.id]: 0 }));
-    setAddedIds(a => ({ ...a, [product.id]: true }));
-    setTimeout(() => setAddedIds(a => ({ ...a, [product.id]: false })), 1500);
+    setQuantities(q => ({ ...q, [key]: 0 }));
+    setAddedIds(a => ({ ...a, [key]: true }));
+    setTimeout(() => setAddedIds(a => ({ ...a, [key]: false })), 1500);
   };
+  const removeFromCart = (key) => setCart(c => c.filter(i => i.key !== key));
+  const updateCartQty = (key, val) => { const v = Math.max(0, parseInt(val)||0); if(v===0) removeFromCart(key); else setCart(c => c.map(i => i.key===key ? {...i,qty:v} : i)); };
+  const cartCount = cart.reduce((s,i) => s+i.qty, 0);
+  const cartTotal = cart.reduce((s,i) => s+i.ron*i.qty, 0);
 
-  const removeFromCart = (id) => setCart(c => c.filter(i => i.id !== id));
-  const updateCartQty = (id, val) => {
-    const v = Math.max(0, parseInt(val) || 0);
-    if (v === 0) removeFromCart(id);
-    else setCart(c => c.map(i => i.id === id ? { ...i, qty: v } : i));
-  };
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const cartTotal = cart.reduce((s, i) => s + i.eur * i.qty, 0);
+  const setQty = (key, val) => setQuantities(q => ({ ...q, [key]: Math.max(0, parseInt(val)||0) }));
 
   const handleSend = () => {
-    const lines = cart.map(i => "- " + i.name + " " + i.size + " x" + i.qty + " = " + (i.qty * i.eur).toFixed(2) + " EUR").join("\n");
-    const msg = "Buna ziua! Comanda Australian Gold:\n\n" + lines + "\n\nTotal: " + cartTotal.toFixed(2) + " EUR (fara TVA)";
+    const lines = cart.map(i => `- ${i.name} ${i.size} x${i.qty} = ${(i.qty*i.ron).toFixed(2)} RON`).join("\n");
+    const msg = `Buna ziua! Comanda:\n\n${lines}\n\nTotal: ${cartTotal.toFixed(2)} RON (fara TVA)`;
     window.open("https://wa.me/40721534321?text=" + encodeURIComponent(msg), "_blank");
-    setOrderSent(true);
-    setCartOpen(false);
-    setCart([]);
+    setOrderSent(true); setCartOpen(false); setCart([]);
     setTimeout(() => setOrderSent(false), 3500);
   };
 
   // ── CART SCREEN ──
   if (cartOpen) return (
-    <div style={{ fontFamily: "system-ui,sans-serif", background: "#f8f7f4", minHeight: "100vh", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column" }}>
-      <div style={{ background: "#fff", padding: "14px 16px", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => setCartOpen(false)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: DARK, padding: 0 }}>←</button>
-        <div style={{ fontSize: 18, fontWeight: 800, flex: 1 }}>Cosul meu</div>
-        {cartCount > 0 && <div style={{ fontSize: 13, color: "#888" }}>{cartCount} produse</div>}
+    <div style={{ fontFamily:"system-ui,sans-serif", background:"#f8f7f4", minHeight:"100vh", maxWidth:480, margin:"0 auto", display:"flex", flexDirection:"column" }}>
+      <div style={{ background:"#fff", padding:"14px 16px", borderBottom:"1px solid #eee", display:"flex", alignItems:"center", gap:12, position:"sticky", top:0, zIndex:10 }}>
+        <button onClick={() => setCartOpen(false)} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:DARK, padding:0 }}>←</button>
+        <div style={{ fontSize:18, fontWeight:800, flex:1 }}>Coșul meu</div>
+        {cartCount > 0 && <div style={{ fontSize:13, color:"#888" }}>{cartCount} produse</div>}
       </div>
-
-      <div style={{ flex: 1, overflowY: "auto", padding: "8px 16px 120px" }}>
+      <div style={{ flex:1, overflowY:"auto", padding:"8px 16px 120px" }}>
         {cart.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "#bbb", fontSize: 15 }}>Cosul este gol.</div>
-        ) : cart.map(item => {
-          const ts = getTS(item.type);
-          return (
-            <div key={item.id} style={{ background: "#fff", borderRadius: 14, marginBottom: 10, padding: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.07)", display: "flex", gap: 12, alignItems: "center" }}>
-              <Img name={item.name} size={item.size} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 14, lineHeight: 1.3 }}>{item.name}</div>
-                <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{item.size}</div>
-                <span style={{ background: ts.bg, color: ts.color, fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 20, display: "inline-flex", alignItems: "center", gap: 3, marginTop: 4 }}>
-                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: ts.dot }}></span>{item.type}
-                </span>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
-                  <div style={{ display: "flex", border: "1.5px solid #e0d5c5", borderRadius: 8, overflow: "hidden" }}>
-                    <button onClick={() => updateCartQty(item.id, item.qty - 1)} style={{ width: 32, height: 32, background: "#f9f4ec", border: "none", cursor: "pointer", fontSize: 18, fontWeight: 700, color: "#555" }}>-</button>
-                    <input type="number" value={item.qty} onChange={e => updateCartQty(item.id, e.target.value)} style={{ width: 40, textAlign: "center", fontSize: 14, fontWeight: 700, border: "none", outline: "none", background: "#fff", fontFamily: "inherit" }} />
-                    <button onClick={() => updateCartQty(item.id, item.qty + 1)} style={{ width: 32, height: 32, background: "#f9f4ec", border: "none", cursor: "pointer", fontSize: 18, fontWeight: 700, color: "#555" }}>+</button>
-                  </div>
-                  <button onClick={() => removeFromCart(item.id)} style={{ background: "none", border: "none", color: "#d94f2b", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Sterge</button>
+          <div style={{ textAlign:"center", padding:"80px 0", color:"#bbb", fontSize:15 }}>Coșul este gol.</div>
+        ) : cart.map(item => (
+          <div key={item.key} style={{ background:"#fff", borderRadius:14, marginBottom:10, padding:14, boxShadow:"0 1px 4px rgba(0,0,0,0.07)", display:"flex", gap:12, alignItems:"center" }}>
+            <ImgBox src={item.img} alt={item.name} fallback={AG_LOGO} />
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontWeight:700, fontSize:14, lineHeight:1.3 }}>{item.name}</div>
+              <div style={{ fontSize:12, color:"#888", marginTop:2 }}>{item.size}</div>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:8 }}>
+                <div style={{ display:"flex", border:"1.5px solid #e0d5c5", borderRadius:8, overflow:"hidden" }}>
+                  <button onClick={() => updateCartQty(item.key, item.qty-1)} style={{ width:32, height:32, background:"#f9f4ec", border:"none", cursor:"pointer", fontSize:18, fontWeight:700, color:"#555" }}>-</button>
+                  <input type="number" value={item.qty} onChange={e => updateCartQty(item.key, e.target.value)} style={{ width:40, textAlign:"center", fontSize:14, fontWeight:700, border:"none", outline:"none", background:"#fff", fontFamily:"inherit" }} />
+                  <button onClick={() => updateCartQty(item.key, item.qty+1)} style={{ width:32, height:32, background:"#f9f4ec", border:"none", cursor:"pointer", fontSize:18, fontWeight:700, color:"#555" }}>+</button>
                 </div>
-              </div>
-              <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <div style={{ fontWeight: 900, fontSize: 17 }}>€{(item.qty * item.eur).toFixed(2)}</div>
-                <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>fara TVA</div>
+                <button onClick={() => removeFromCart(item.key)} style={{ background:"none", border:"none", color:"#d94f2b", cursor:"pointer", fontSize:12, fontWeight:600 }}>Șterge</button>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {cart.length > 0 && (
-        <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: DARK, padding: "14px 16px 24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13 }}>Total estimativ</div>
-            <div style={{ color: "#f5c842", fontWeight: 900, fontSize: 20 }}>€{cartTotal.toFixed(2)}</div>
+            <div style={{ textAlign:"right", flexShrink:0 }}>
+              <div style={{ fontWeight:900, fontSize:17 }}>{(item.qty*item.ron).toFixed(2)} RON</div>
+              <div style={{ fontSize:11, color:"#aaa", marginTop:2 }}>fără TVA</div>
+            </div>
           </div>
-          <button onClick={handleSend} style={{ width: "100%", background: "#25D366", color: "#fff", border: "none", borderRadius: 14, padding: 16, fontSize: 17, fontWeight: 800, cursor: "pointer" }}>
+        ))}
+      </div>
+      {cart.length > 0 && (
+        <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:480, background:DARK, padding:"14px 16px 24px" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}>
+            <div style={{ color:"rgba(255,255,255,0.6)", fontSize:13 }}>Total estimativ</div>
+            <div style={{ color:"#f5c842", fontWeight:900, fontSize:20 }}>{cartTotal.toFixed(2)} RON</div>
+          </div>
+          <button onClick={handleSend} style={{ width:"100%", background:"#25D366", color:"#fff", border:"none", borderRadius:14, padding:16, fontSize:17, fontWeight:800, cursor:"pointer" }}>
             Trimite pe WhatsApp
           </button>
         </div>
@@ -294,33 +364,30 @@ export default function App() {
 
   // ── MAIN SCREEN ──
   return (
-    <div style={{ fontFamily: "system-ui,sans-serif", background: "#f8f7f4", minHeight: "100vh", maxWidth: 480, margin: "0 auto" }}>
+    <div style={{ fontFamily:"system-ui,sans-serif", background:"#f8f7f4", minHeight:"100vh", maxWidth:480, margin:"0 auto" }}>
 
       {/* HEADER */}
-      <div style={{ background: "#fff", padding: "12px 16px", borderBottom: "1px solid #f0ece4", position: "sticky", top: 0, zIndex: 50 }}>
+      <div style={{ background:"#fff", padding:"12px 16px", borderBottom:"1px solid #f0ece4", position:"sticky", top:0, zIndex:50 }}>
         {showSearch ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <input autoFocus value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Cauta produs..."
-              style={{ flex: 1, border: "1.5px solid #e0d5c5", borderRadius: 10, padding: "10px 14px", fontSize: 15, outline: "none", fontFamily: "inherit" }} />
-            <button onClick={() => { setShowSearch(false); setSearch(""); }} style={{ background: "none", border: "none", color: GOLD, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Anuleaza</button>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <input autoFocus value={search} onChange={e => setSearch(e.target.value)} placeholder="Caută produs..."
+              style={{ flex:1, border:"1.5px solid #e0d5c5", borderRadius:10, padding:"10px 14px", fontSize:15, outline:"none", fontFamily:"inherit" }} />
+            <button onClick={() => { setShowSearch(false); setSearch(""); }} style={{ background:"none", border:"none", color:GOLD, fontWeight:700, fontSize:14, cursor:"pointer" }}>Anulează</button>
           </div>
         ) : (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 900, lineHeight: 1 }}>
-                <span style={{ color: GOLD }}>bronzat</span><span style={{ color: DARK }}>.ro</span>
+              <div style={{ fontSize:22, fontWeight:900, lineHeight:1 }}>
+                <span style={{ color:GOLD }}>bronzat</span><span style={{ color:DARK }}>.ro</span>
               </div>
-              <div style={{ fontSize: 9, color: "#aaa", letterSpacing: 2, textTransform: "uppercase", marginTop: 2 }}>Comanda Lotiuni Australian Gold 2026</div>
+              <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, textTransform:"uppercase", marginTop:2 }}>Catalog produse 2026</div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <button onClick={() => setShowSearch(true)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: DARK, padding: 0 }}>🔍</button>
-              <button onClick={() => setCartOpen(true)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, position: "relative" }}>
-                <span style={{ fontSize: 24 }}>🛒</span>
+            <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+              <button onClick={() => setShowSearch(true)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:DARK, padding:0 }}>🔍</button>
+              <button onClick={() => setCartOpen(true)} style={{ background:"none", border:"none", cursor:"pointer", padding:0, position:"relative" }}>
+                <span style={{ fontSize:24 }}>🛒</span>
                 {cartCount > 0 && (
-                  <span style={{ position: "absolute", top: -4, right: -6, background: GOLD, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {cartCount}
-                  </span>
+                  <span style={{ position:"absolute", top:-4, right:-6, background:GOLD, color:"#fff", borderRadius:"50%", width:18, height:18, fontSize:10, fontWeight:800, display:"flex", alignItems:"center", justifyContent:"center" }}>{cartCount}</span>
                 )}
               </button>
             </div>
@@ -328,83 +395,140 @@ export default function App() {
         )}
       </div>
 
-      {/* INFO BAR */}
-      <div style={{ background: "#fffbf0", padding: "10px 16px", borderBottom: "1px solid #f0e8d0", display: "flex", alignItems: "flex-start", gap: 8 }}>
-        <span style={{ fontSize: 16 }}>💡</span>
-        <div style={{ fontSize: 12, color: "#7a5c1e", lineHeight: 1.5 }}>
-          Preturi de salon in EUR, fara TVA · Curs BNR + 1% din ziua facturarii<br />
-          Valabile din 01.02.2026
-        </div>
+      {/* MAIN CATEGORIES */}
+      <div style={{ background:"#fff", padding:"10px 12px 0", borderBottom:"1px solid #eee", display:"flex", gap:6, overflowX:"auto" }}>
+        {MAIN_CATS.map(c => (
+          <button key={c.key} onClick={() => switchMainCat(c.key)}
+            style={{ flexShrink:0, padding:"8px 14px", borderRadius:"20px 20px 0 0", border:"none", cursor:"pointer", fontWeight:700, fontSize:12,
+              background: mainCat === c.key ? c.color : "#f3f0ea",
+              color: mainCat === c.key ? "#fff" : "#666",
+              borderBottom: mainCat === c.key ? `3px solid ${c.color}` : "3px solid transparent" }}>
+            {c.label}
+          </button>
+        ))}
       </div>
 
-      {/* FILTERS */}
-      <div style={{ background: "#fff", padding: "12px 16px", borderBottom: "1px solid #eee" }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          {[
-            { label: "Tip", value: filterType, options: ALL_TYPES, set: setFilterType },
-            { label: "Format", value: filterSize, options: ALL_SIZES, set: setFilterSize },
-          ].map(({ label, value, options, set }) => (
-            <div key={label} style={{ flex: 1, position: "relative" }}>
-              <select value={value} onChange={e => set(e.target.value)}
-                style={{ width: "100%", border: "1.5px solid #e0d5c5", borderRadius: 10, padding: "10px 12px", fontSize: 13, outline: "none", background: "#fff", fontFamily: "inherit", appearance: "none", WebkitAppearance: "none", cursor: "pointer" }}>
-                {options.map(o => <option key={o}>{o}</option>)}
-              </select>
-              <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: "#888" }}>▼</div>
-              <div style={{ position: "absolute", left: 12, top: -8, background: "#fff", fontSize: 10, color: "#888", padding: "0 3px" }}>{label}</div>
-            </div>
+      {/* SUBCATEGORIES */}
+      {subcats.length > 1 && (
+        <div style={{ background:"#fafafa", padding:"8px 12px", borderBottom:"1px solid #eee", display:"flex", gap:6, overflowX:"auto" }}>
+          {subcats.map(s => (
+            <button key={s} onClick={() => setSubCat(s)}
+              style={{ flexShrink:0, padding:"5px 12px", borderRadius:20, border:`1.5px solid ${subCat===s ? catColor : "#ddd"}`,
+                background: subCat===s ? catColor : "#fff", color: subCat===s ? "#fff" : "#555",
+                cursor:"pointer", fontSize:11, fontWeight:600 }}>
+              {s}
+            </button>
           ))}
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ fontSize: 13, color: "#666", fontWeight: 500 }}>{filtered.length} produse gasite</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: GOLD, fontWeight: 600, cursor: "pointer" }}>
-            <span>⇅</span>
-            <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-              style={{ border: "none", outline: "none", background: "transparent", color: GOLD, fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-              <option value="name">Nume A-Z</option>
-              <option value="pret_asc">Pret crescator</option>
-              <option value="pret_desc">Pret descrescator</option>
-            </select>
-          </div>
+      )}
+
+      {/* INFO BAR */}
+      <div style={{ background:"#fffbf0", padding:"8px 16px", borderBottom:"1px solid #f0e8d0", display:"flex", alignItems:"center", gap:8 }}>
+        <span style={{ fontSize:14 }}>💡</span>
+        <div style={{ fontSize:11, color:"#7a5c1e" }}>
+          {mainCat === "australian-gold"
+            ? "Prețuri în RON, fără TVA · Australian Gold 2026"
+            : "Prețuri în RON, fără TVA · Stoc bronzat.ro"}
         </div>
+        <div style={{ marginLeft:"auto", fontSize:11, color:"#999" }}>{filtered.length} produse</div>
       </div>
 
       {/* PRODUCT LIST */}
-      <div style={{ padding: "8px 12px 100px" }}>
+      <div style={{ padding:"8px 12px 100px" }}>
         {filtered.length === 0 && (
-          <div style={{ textAlign: "center", padding: 60, color: "#bbb", fontSize: 15 }}>Niciun produs gasit.</div>
+          <div style={{ textAlign:"center", padding:60, color:"#bbb", fontSize:15 }}>Niciun produs găsit.</div>
         )}
-        {filtered.map(p => {
-          const ts = getTS(p.type);
-          const qty = quantities[p.id] || 0;
-          const added = addedIds[p.id];
+
+        {/* ── AUSTRALIAN GOLD ── */}
+        {mainCat === "australian-gold" && filtered.map(p => {
+          const key = String(p.id);
+          const qty = quantities[key] || 0;
+          const added = addedIds[key];
+          const imgSrc = getAgImg(p.name, p.size) || AG_LOGO;
           return (
-            <div key={p.id} style={{ background: "#fff", borderRadius: 14, marginBottom: 10, padding: "14px 14px", boxShadow: "0 1px 5px rgba(0,0,0,0.07)", display: "flex", alignItems: "center", gap: 12 }}>
-              <Img name={p.name} size={p.size} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, lineHeight: 1.3 }}>{p.name}</div>
-                <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{p.size}</div>
-                <span style={{ background: ts.bg, color: ts.color, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 20, display: "inline-flex", alignItems: "center", gap: 3, marginTop: 5 }}>
-                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: ts.dot }}></span>{p.type}
-                </span>
+            <div key={key} style={{ background:"#fff", borderRadius:14, marginBottom:10, padding:"14px", boxShadow:"0 1px 5px rgba(0,0,0,0.07)", display:"flex", alignItems:"center", gap:12 }}>
+              <ImgBox src={imgSrc} alt={p.name} fallback={AG_LOGO} />
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontWeight:700, fontSize:14, lineHeight:1.3 }}>{p.name}</div>
+                <div style={{ fontSize:12, color:"#888", marginTop:2 }}>{p.size}</div>
+                <div style={{ fontSize:10, color:GOLD, fontWeight:600, marginTop:4 }}>{p.type}</div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontWeight: 900, fontSize: 18, color: DARK }}>€{p.eur.toFixed(2)}</div>
-                  <div style={{ fontSize: 11, color: "#aaa" }}>fara TVA</div>
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8, flexShrink:0 }}>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontWeight:900, fontSize:17, color:DARK }}>{p.ron > 0 ? p.ron.toFixed(2) + " RON" : "—"}</div>
+                  <div style={{ fontSize:10, color:"#aaa" }}>fără TVA</div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ display: "flex", border: "1.5px solid #e0d5c5", borderRadius: 8, overflow: "hidden" }}>
-                    <button onClick={() => setQty(p.id, qty - 1)} style={{ width: 30, height: 36, background: "#f9f4ec", border: "none", cursor: "pointer", fontSize: 18, fontWeight: 700, color: "#555" }}>-</button>
-                    <input type="number" min="0" value={qty} onChange={e => setQty(p.id, e.target.value)}
-                      style={{ width: 36, textAlign: "center", fontSize: 14, fontWeight: 700, border: "none", outline: "none", background: "#fff", fontFamily: "inherit", padding: 0 }} />
-                    <button onClick={() => setQty(p.id, qty + 1)} style={{ width: 30, height: 36, background: "#f9f4ec", border: "none", cursor: "pointer", fontSize: 18, fontWeight: 700, color: "#555" }}>+</button>
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ display:"flex", border:"1.5px solid #e0d5c5", borderRadius:8, overflow:"hidden" }}>
+                    <button onClick={() => setQty(key, qty-1)} style={{ width:28, height:34, background:"#f9f4ec", border:"none", cursor:"pointer", fontSize:16, fontWeight:700, color:"#555" }}>-</button>
+                    <input type="number" min="0" value={qty} onChange={e => setQty(key, e.target.value)} style={{ width:34, textAlign:"center", fontSize:13, fontWeight:700, border:"none", outline:"none", background:"#fff", fontFamily:"inherit", padding:0 }} />
+                    <button onClick={() => setQty(key, qty+1)} style={{ width:28, height:34, background:"#f9f4ec", border:"none", cursor:"pointer", fontSize:16, fontWeight:700, color:"#555" }}>+</button>
                   </div>
-                  <button onClick={() => addToCart(p)}
-                    style={{ height: 36, padding: "0 10px", background: added ? "#2e7d4f" : qty > 0 ? GOLD : "#e8e0d0", color: qty > 0 || added ? "#fff" : "#bbb", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: qty > 0 ? "pointer" : "default", whiteSpace: "nowrap", transition: "background 0.2s", display: "flex", alignItems: "center", gap: 4 }}>
-                    {added ? "✓" : "🛒"} {added ? "OK!" : qty > 0 ? "Adauga" : "Adauga"}
+                  <button onClick={() => addToCart(p, undefined)}
+                    style={{ height:34, padding:"0 10px", background: added ? "#2e7d4f" : qty > 0 ? GOLD : "#e8e0d0", color: qty > 0 || added ? "#fff" : "#bbb", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor: qty > 0 ? "pointer" : "default", whiteSpace:"nowrap", transition:"background 0.2s" }}>
+                    {added ? "✓ OK!" : "🛒 Adaugă"}
                   </button>
                 </div>
               </div>
+            </div>
+          );
+        })}
+
+        {/* ── DC / INKY / CONSUMABILE ── */}
+        {mainCat !== "australian-gold" && filtered.map(p => {
+          const hasVars = p.variations && p.variations.length > 0;
+          return (
+            <div key={p.id} style={{ background:"#fff", borderRadius:14, marginBottom:10, padding:"14px", boxShadow:"0 1px 5px rgba(0,0,0,0.07)" }}>
+              <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+                <ImgBox src={p.image} alt={p.name} fallback={AG_LOGO} />
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontWeight:700, fontSize:14, lineHeight:1.3 }}>{p.name}</div>
+                  <div style={{ fontSize:10, color:catColor, fontWeight:600, marginTop:3 }}>{p.cat}</div>
+                </div>
+              </div>
+
+              {/* Variatii */}
+              {hasVars ? (
+                <div style={{ marginTop:10, display:"flex", flexDirection:"column", gap:6 }}>
+                  {p.variations.map((v, vi) => {
+                    const key = p.id + "_" + vi;
+                    const qty = quantities[key] || 0;
+                    const added = addedIds[key];
+                    return (
+                      <div key={vi} style={{ display:"flex", alignItems:"center", gap:8, background:"#f9f7f4", borderRadius:10, padding:"8px 10px" }}>
+                        <div style={{ flex:1 }}>
+                          <span style={{ fontSize:12, fontWeight:700, color:"#444" }}>{v.size}</span>
+                          <span style={{ fontSize:13, fontWeight:900, color:DARK, marginLeft:10 }}>{v.ron > 0 ? v.ron.toFixed(2) + " RON" : "—"}</span>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                          <div style={{ display:"flex", border:"1.5px solid #e0d5c5", borderRadius:8, overflow:"hidden" }}>
+                            <button onClick={() => setQty(key, qty-1)} style={{ width:26, height:30, background:"#f0ece4", border:"none", cursor:"pointer", fontSize:15, fontWeight:700, color:"#555" }}>-</button>
+                            <input type="number" min="0" value={qty} onChange={e => setQty(key, e.target.value)} style={{ width:30, textAlign:"center", fontSize:12, fontWeight:700, border:"none", outline:"none", background:"#fff", fontFamily:"inherit", padding:0 }} />
+                            <button onClick={() => setQty(key, qty+1)} style={{ width:26, height:30, background:"#f0ece4", border:"none", cursor:"pointer", fontSize:15, fontWeight:700, color:"#555" }}>+</button>
+                          </div>
+                          <button onClick={() => addToCart(p, vi)}
+                            style={{ height:30, padding:"0 8px", background: added ? "#2e7d4f" : qty > 0 ? catColor : "#e8e0d0", color: qty > 0 || added ? "#fff" : "#bbb", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor: qty > 0 ? "pointer" : "default", whiteSpace:"nowrap" }}>
+                            {added ? "✓" : "🛒"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ marginTop:8, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <span style={{ fontSize:16, fontWeight:900, color:DARK }}>{p.variations?.ron > 0 ? p.variations[0]?.ron?.toFixed(2) + " RON" : "La cerere"}</span>
+                  <button onClick={() => {
+                    const key = String(p.id);
+                    setCart(c => { const ex = c.find(i => i.key===key); return ex ? c.map(i => i.key===key ? {...i,qty:i.qty+1} : i) : [...c, {key, name:p.name, size:"", ron:0, img:p.image, qty:1}]; });
+                    setAddedIds(a => ({ ...a, [String(p.id)]: true }));
+                    setTimeout(() => setAddedIds(a => ({ ...a, [String(p.id)]: false })), 1500);
+                  }}
+                  style={{ height:32, padding:"0 12px", background: addedIds[String(p.id)] ? "#2e7d4f" : catColor, color:"#fff", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor:"pointer" }}>
+                    {addedIds[String(p.id)] ? "✓ OK!" : "🛒 Adaugă"}
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -412,24 +536,23 @@ export default function App() {
 
       {/* BOTTOM BAR */}
       {cartCount > 0 && (
-        <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, padding: "10px 12px 16px", background: "transparent", pointerEvents: "none" }}>
-          <button onClick={() => setCartOpen(true)} pointerEvents="all"
-            style={{ width: "100%", background: DARK, color: "#fff", border: "none", borderRadius: 16, padding: "14px 20px", fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.25)", pointerEvents: "all" }}>
-            <span style={{ background: GOLD, borderRadius: "50%", width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{cartCount}</span>
-            <span style={{ flex: 1, textAlign: "left" }}>{cartCount} {cartCount === 1 ? "produs" : "produse"} in cos</span>
-            <span style={{ color: "#f5c842", fontWeight: 900, fontSize: 16 }}>€{cartTotal.toFixed(2)} fara TVA</span>
-            <span style={{ fontSize: 18 }}>›</span>
+        <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:480, padding:"10px 12px 16px", pointerEvents:"none" }}>
+          <button onClick={() => setCartOpen(true)} style={{ width:"100%", background:DARK, color:"#fff", border:"none", borderRadius:16, padding:"14px 20px", fontSize:15, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", gap:12, boxShadow:"0 4px 20px rgba(0,0,0,0.25)", pointerEvents:"all" }}>
+            <span style={{ background:GOLD, borderRadius:"50%", width:28, height:28, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800 }}>{cartCount}</span>
+            <span style={{ flex:1, textAlign:"left" }}>{cartCount} {cartCount===1?"produs":"produse"} în coș</span>
+            <span style={{ color:"#f5c842", fontWeight:900, fontSize:16 }}>{cartTotal.toFixed(2)} RON</span>
+            <span style={{ fontSize:18 }}>›</span>
           </button>
         </div>
       )}
 
       {/* ORDER SENT */}
       {orderSent && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div style={{ background: "#fff", borderRadius: 20, padding: "40px 30px", textAlign: "center", width: "100%" }}>
-            <div style={{ fontSize: 56, marginBottom: 12 }}>✅</div>
-            <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Comanda trimisa!</div>
-            <div style={{ fontSize: 14, color: "#666" }}>Echipa bronzat.ro te va contacta in scurt timp.</div>
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:400, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+          <div style={{ background:"#fff", borderRadius:20, padding:"40px 30px", textAlign:"center", width:"100%" }}>
+            <div style={{ fontSize:56, marginBottom:12 }}>✅</div>
+            <div style={{ fontSize:20, fontWeight:800, marginBottom:8 }}>Comandă trimisă!</div>
+            <div style={{ fontSize:14, color:"#666" }}>Echipa bronzat.ro te va contacta în scurt timp.</div>
           </div>
         </div>
       )}
