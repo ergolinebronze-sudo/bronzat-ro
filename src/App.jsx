@@ -213,8 +213,8 @@ const DC_PRODUCTS = [
 
 // ─── CATEGORII PRINCIPALE ──────────────────────────────────────────
 const MAIN_CATS = [
-  { key:"australian-gold", label:"🌞 Australian Gold",     color:"#c8922a" },
   { key:"devoted",         label:"💜 Devoted Creations",   color:"#7c3aed" },
+  { key:"australian-gold", label:"🌞 Australian Gold",     color:"#c8922a" },
   { key:"inky",            label:"🖋️ Inky Cosmetics",      color:"#0ea5e9" },
   { key:"consumabile",     label:"🧹 Consumabile",          color:"#16a34a" },
 ];
@@ -244,7 +244,7 @@ function ImgBox({ src, alt, fallback }) {
 }
 
 export default function App() {
-  const [mainCat, setMainCat]     = useState("australian-gold");
+  const [mainCat, setMainCat]     = useState("devoted");
   const [subCat, setSubCat]       = useState("Toate");
   const [search, setSearch]       = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -396,13 +396,13 @@ export default function App() {
       </div>
 
       {/* MAIN CATEGORIES */}
-      <div style={{ background:"#fff", padding:"10px 12px 0", borderBottom:"1px solid #eee", display:"flex", gap:6, overflowX:"auto" }}>
+      <div style={{ background:"#fff", padding:"10px 12px", borderBottom:"1px solid #eee", display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
         {MAIN_CATS.map(c => (
           <button key={c.key} onClick={() => switchMainCat(c.key)}
-            style={{ flexShrink:0, padding:"8px 14px", borderRadius:"20px 20px 0 0", border:"none", cursor:"pointer", fontWeight:700, fontSize:12,
-              background: mainCat === c.key ? c.color : "#f3f0ea",
-              color: mainCat === c.key ? "#fff" : "#666",
-              borderBottom: mainCat === c.key ? `3px solid ${c.color}` : "3px solid transparent" }}>
+            style={{ padding:"10px 8px", borderRadius:12, border:`2px solid ${mainCat === c.key ? c.color : "#e8e0d0"}`, cursor:"pointer", fontWeight:700, fontSize:13,
+              background: mainCat === c.key ? c.color : "#faf8f5",
+              color: mainCat === c.key ? "#fff" : "#555",
+              textAlign:"center", transition:"all 0.15s" }}>
             {c.label}
           </button>
         ))}
