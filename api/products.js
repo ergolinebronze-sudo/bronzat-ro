@@ -1,5 +1,5 @@
 // api/products.js — Vercel Serverless Function
-// Trage stocul produselor din SmartBill gestiune ergolife
+// Trage stocul SI preturile din SmartBill
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -23,31 +23,59 @@ export default async function handler(req, res) {
     const today = new Date().toISOString().split("T")[0];
     const warehouse = "ergolife";
 
-    const url = `https://ws.smartbill.ro/SBORO/api/stocks?cif=${encodeURIComponent(cif)}&date=${today}&warehouseName=${encodeURIComponent(warehouse)}`;
-    const stockResp = await fetch(url, { headers });
+    // 1. Stoc
+    const stockResp = await fetch(
+      `https://ws.smartbill.ro/SBORO/api/stocks?cif=${encodeURIComponent(cif)}&date=${today}&warehouseName=${encodeURIComponent(warehouse)}`,
+      { headers }
+    );
 
-    if (!stockResp.ok) {
-      const err = await stockResp.text();
-      return res.status(stockResp.status).json({ error: "Eroare SmartBill", detail: err.substring(0, 300) });
+    let stockMap = {};
+    if (stockResp.ok) {
+      const stockData = await stockResp.json();
+      const list = stockData.list || [];
+      list.forEach(w => {
+        (w.products || []).forEach(p => {
+          const key = (p.productName || "").trim().toUpperCase();
+          stockMap[key] = parseFloat(p.quantity ?? 0);
+        });
+      });
     }
 
-    const stockData = await stockResp.json();
-    const list = stockData.list || [];
+    // 2. Preturi - incearca endpoint-ul de nomenclator
+    let priceMap = {};
+    const priceUrls = [
+      `https://ws.smartbill.ro/SBORO/api/product-list?cif=${encodeURIComponent(cif)}`,
+      `https://ws.smartbill.ro/SBORO/api/products?cif=${encodeURIComponent(cif)}`,
+      `https://ws.smartbill.ro/SBORO/api/nomenclature/products?cif=${encodeURIComponent(cif)}`,
+      `https://ws.smartbill.ro/SBORO/api/priceList?cif=${encodeURIComponent(cif)}`,
+    ];
 
-    // Construieste map { NUME_PRODUS_UPPERCASE: quantity }
-    const stockMap = {};
-    list.forEach(warehouse => {
-      const products = warehouse.products || [];
-      products.forEach(p => {
-        const key = (p.productName || "").trim().toUpperCase();
-        stockMap[key] = parseFloat(p.quantity ?? 0);
-      });
-    });
+    let priceRaw = {};
+    for (const url of priceUrls) {
+      const r = await fetch(url, { headers });
+      priceRaw[url] = { status: r.status };
+      if (r.ok) {
+        const d = await r.json();
+        priceRaw[url].data = JSON.stringify(d).substring(0, 200);
+        // Daca am gasit ceva, extragem preturile
+        const items = d.list || d.products || d.items || [];
+        if (Array.isArray(items) && items.length > 0) {
+          items.forEach(p => {
+            const key = (p.name || p.productName || "").trim().toUpperCase();
+            priceMap[key] = parseFloat(p.price || p.unitPrice || p.standardPrice || 0);
+          });
+          break; // am gasit endpoint-ul corect
+        }
+      }
+    }
 
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", "s-maxage=300");
     return res.status(200).json({ 
       stocks: stockMap,
-      count: Object.keys(stockMap).length,
+      prices: priceMap,
+      priceEndpoints: priceRaw,
+      stockCount: Object.keys(stockMap).length,
+      priceCount: Object.keys(priceMap).length,
       updatedAt: new Date().toISOString() 
     });
 
