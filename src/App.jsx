@@ -192,6 +192,8 @@ const AG_PRODUCTS = [
   { id:7,  name:"Accelerator Lot. Aniversare 40",  size:"250 mL", type:"Intensificator",         ron:85.40 },
   { id:8,  name:"Accelerator Lot. Aniversare 40",  size:"15 mL",  type:"Intensificator",         ron:11.06 },
   { id:9,  name:"Accelerator Spray",               size:"250 mL", type:"Intensificator",         ron:67.23 },
+  { id:83, name:"Accelerator Signature",            size:"250 mL", type:"Intensificator",         ron:86.16 },
+  { id:84, name:"Accelerator Signature",            size:"15 mL",  type:"Intensificator",         ron:13.31 },
   { id:10, name:"Adorably Bronze",                 size:"250 mL", type:"DHA / Bronzant natural", ron:117.01 },
   { id:11, name:"Adorably Bronze",                 size:"15 mL",  type:"DHA / Bronzant natural", ron:16.57 },
   { id:12, name:"Bold by G Gentlemen",             size:"250 mL", type:"Bronzant DHA",           ron:0 },
@@ -259,8 +261,6 @@ const AG_PRODUCTS = [
   { id:80, name:"Wild Obsession",                  size:"250 mL", type:"Bronzant Instant+DHA",   ron:0 },
   { id:81, name:"Wild Obsession",                  size:"15 mL",  type:"Bronzant Instant+DHA",   ron:23.78 },
   { id:82, name:"Solar Dust",                      size:"237 mL", type:"Bronzant DHA",           ron:63.86 },
-  { id:83, name:"Accelerator Signature",            size:"250 mL", type:"Intensificator",         ron:86.16 },
-  { id:84, name:"Accelerator Signature",            size:"15 mL",  type:"Intensificator",         ron:13.31 },
 ];
 
 // ─── DEVOTED CREATIONS & INKY COSMETICS & CONSUMABILE ──────────────
