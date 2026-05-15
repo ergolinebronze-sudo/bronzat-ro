@@ -147,7 +147,7 @@ const SB_MAP = {
   "Covoraș Cabină (diverse culori)|buc":  "COVOR CABINA 80X60 UV",
   "Aromă Megasun Sunrise|buc":            "AROMA MEGASUN SUNRISE",
   "Ochelari Super Sunnies|buc":           "OCHELARI UV",
-  "Ochelari UV cu Șnur|buc":              "OCHELARI UV SNUR ROSU",
+  "Ochelari UV cu Șnur|buc":              "OCHELARI UV",
   "Ochelari Podz Designer Classic|buc":   "PODZ CLASSSIC DESIGNER EYEWEAR",
   "Ochelari Podz Classic|buc":            "PODZ CLASSIC EYEWEAR",
   "Ochelari Podz Fashion|buc":            "PODZ FASHION EYEWEAR",
