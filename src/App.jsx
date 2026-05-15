@@ -170,16 +170,17 @@ const AG_LOGO = "https://www.australiangold.net/themes/australian-gold/assets/im
 
 const AG_IMAGES = {
   "Accelerator Extreme":            { large: BR+"2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-250ml.jpg", small: BR+"2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-15ml.jpg" },
+  "Accelerator K":                  { large: BR+"2020/12/AG-Accelerator-K-250ml.jpg", small: BR+"2020/12/AG-Accelerator-K-15ml.jpg" },
   "Accelerator Lotion":             { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: "https://i.ibb.co/bjX8TTGv/shopping.webp" },
   "Accelerator Lot. Aniversare 40": { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: BR+"2015/04/Australian_Gold_Accelerator_15ml.png" },
-  "Accelerator K":                  { large: BR+"2020/12/AG-Accelerator-K-250ml.jpg", small: BR+"2020/12/AG-Accelerator-K-15ml.jpg" },
   "Accelerator Spray":              { large: AGN+"1098-medium_default/accelerator-spray-gel-con-bronzer.jpg" },
+  "Accelerator Signature":          { large: "https://i.ibb.co/ycjyMvBK/australian-gold-signature-accelerator-flacon-250ml-399349.webp", small: "https://i.ibb.co/d4c6xmhR/shopping-1.webp" },
   "Adorably Bronze":                { large: BR+"2018/02/Adorably-Black-250ml.jpg", small: BR+"2018/02/Adorably-Black-15ml.jpg" },
+  "Bronze Accelerator":             { large: "https://i.ibb.co/7JHFwwVH/shopping-2.webp", small: "https://i.ibb.co/C3bVwK7y/australian-gold-bronze-accelerator-plic-15ml-412123.webp" },
   "Daringly Dark":                  { large: BR+"2020/12/AG-Daringly-Dark-250ml.jpg", small: BR+"2020/12/AG-Daringly-Dark-15ml.jpg" },
   "Deviously Bronze":               { large: AGN+"1301-medium_default/deviously-bronze.jpg" },
-  "Solar Dust":               { large: "https://gomagcdn.ro/domains/australiangoldromania.ro/files/product/large/australian-gold-solar-dust-flacon-237ml-237393.webp" },
-  "Accelerator Signature":    { large: "https://i.ibb.co/ycjyMvBK/australian-gold-signature-accelerator-flacon-250ml-399349.webp", small: "https://i.ibb.co/d4c6xmhR/shopping-1.webp" },
   "Hardcore Bronze":                { large: AGN+"1300-medium_default/hardcore-bronze.jpg" },
+  "Solar Dust":                     { large: "https://gomagcdn.ro/domains/australiangoldromania.ro/files/product/large/australian-gold-solar-dust-flacon-237ml-237393.webp" },
 };
 
 const AG_PRODUCTS = [
