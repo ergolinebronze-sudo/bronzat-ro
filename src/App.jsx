@@ -51,7 +51,7 @@ const SB_MAP = {
   "Pure Heat|15 mL":                       "AG PURE HEAT 15 ML",
   "Sinfully Bronze|15 mL":                 "AG SINFULLY BRONZE 15 ML",
   "Wild Obsession|15 mL":                  "AG WILD OBSESSION  15 ML",
-  "Solar Dust|250 mL":                     "AG SOLAR DUST 250 ML",
+  "Solar Dust|237 mL":                     "AG SOLAR DUST 250 ML",
   // Devoted Creations
   "Black Velvet|360 ml":                   "DC BLACK VELVET 360 ML",
   "Black Velvet|15 ml":                    "DC BLACK VELVET 15 ML",
@@ -174,6 +174,7 @@ const AG_IMAGES = {
   "Adorably Bronze":                { large: BR+"2018/02/Adorably-Black-250ml.jpg", small: BR+"2018/02/Adorably-Black-15ml.jpg" },
   "Daringly Dark":                  { large: BR+"2020/12/AG-Daringly-Dark-250ml.jpg", small: BR+"2020/12/AG-Daringly-Dark-15ml.jpg" },
   "Deviously Bronze":               { large: AGN+"1301-medium_default/deviously-bronze.jpg" },
+  "Solar Dust":               { large: "https://gomagcdn.ro/domains/australiangoldromania.ro/files/product/large/australian-gold-solar-dust-flacon-237ml-237393.webp" },
   "Hardcore Bronze":                { large: AGN+"1300-medium_default/hardcore-bronze.jpg" },
 };
 
@@ -253,7 +254,7 @@ const AG_PRODUCTS = [
   { id:73, name:"Sinfully Bronze",                 size:"15 mL",  type:"Intensificator fata",    ron:13.63 },
   { id:80, name:"Wild Obsession",                  size:"250 mL", type:"Bronzant Instant+DHA",   ron:0 },
   { id:81, name:"Wild Obsession",                  size:"15 mL",  type:"Bronzant Instant+DHA",   ron:23.78 },
-  { id:82, name:"Solar Dust",                      size:"250 mL", type:"Bronzant DHA",           ron:63.86 },
+  { id:82, name:"Solar Dust",                      size:"237 mL", type:"Bronzant DHA",           ron:63.86 },
 ];
 
 // ─── DEVOTED CREATIONS & INKY COSMETICS & CONSUMABILE ──────────────
