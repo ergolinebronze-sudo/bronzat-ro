@@ -51,6 +51,7 @@ const SB_MAP = {
   "Pure Heat|15 mL":                       "AG PURE HEAT 15 ML",
   "Sinfully Bronze|15 mL":                 "AG SINFULLY BRONZE 15 ML",
   "Wild Obsession|15 mL":                  "AG WILD OBSESSION  15 ML",
+  "Solar Dust|250 mL":                     "AG SOLAR DUST 250 ML",
   // Devoted Creations
   "Black Velvet|360 ml":                   "DC BLACK VELVET 360 ML",
   "Black Velvet|15 ml":                    "DC BLACK VELVET 15 ML",
@@ -177,7 +178,7 @@ const AG_IMAGES = {
 };
 
 const AG_PRODUCTS = [
-  { id:1,  name:"Accelerator Extreme",             size:"250 mL", type:"Bronzant DHA",           ron:76.54 },
+  { id:1,  name:"Accelerator Extreme",             size:"250 mL", type:"Bronzant DHA",           ron:85.98 },
   { id:2,  name:"Accelerator Extreme",             size:"15 mL",  type:"Bronzant DHA",           ron:13.34 },
   { id:3,  name:"Accelerator K",                   size:"250 mL", type:"Intensificator",         ron:78.74 },
   { id:4,  name:"Accelerator K",                   size:"15 mL",  type:"Intensificator",         ron:11.48 },
@@ -250,14 +251,9 @@ const AG_PRODUCTS = [
   { id:71, name:"Rugged by G Gentlemen",           size:"15 mL",  type:"Bronzant DHA",           ron:0 },
   { id:72, name:"Sinfully Bronze",                 size:"250 mL", type:"Intensificator fata",    ron:0 },
   { id:73, name:"Sinfully Bronze",                 size:"15 mL",  type:"Intensificator fata",    ron:13.63 },
-  { id:74, name:"Smooth Faces",                    size:"118 mL", type:"Intensificator fata",    ron:0 },
-  { id:75, name:"Smooth Faces",                    size:"15 mL",  type:"Intensificator fata",    ron:0 },
-  { id:76, name:"Tropical Retreat DHA Bronzer",    size:"300 mL", type:"Bronzant DHA",           ron:0 },
-  { id:77, name:"Tropical Retreat DHA Bronzer",    size:"15 mL",  type:"Bronzant DHA",           ron:0 },
-  { id:78, name:"Tropical Retreat Intensifier",    size:"300 mL", type:"Intensificator",         ron:0 },
-  { id:79, name:"Tropical Retreat Intensifier",    size:"15 mL",  type:"Intensificator",         ron:0 },
   { id:80, name:"Wild Obsession",                  size:"250 mL", type:"Bronzant Instant+DHA",   ron:0 },
   { id:81, name:"Wild Obsession",                  size:"15 mL",  type:"Bronzant Instant+DHA",   ron:23.78 },
+  { id:82, name:"Solar Dust",                      size:"250 mL", type:"Bronzant DHA",           ron:63.86 },
 ];
 
 // ─── DEVOTED CREATIONS & INKY COSMETICS & CONSUMABILE ──────────────
