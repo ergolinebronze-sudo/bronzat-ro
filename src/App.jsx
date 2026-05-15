@@ -49,6 +49,7 @@ const SB_MAP = {
   "Peptide Pro Hybrid Facial|3 mL":        "AG PEPTIDE PRO HYBRID  FACIAL 3 ML",
   "Pure Heat|250 mL":                      "AG PURE HEAT 250 ML",
   "Pure Heat|15 mL":                       "AG PURE HEAT 15 ML",
+  "Sinfully Bronze|250 mL":                "AG SINFULLY BLACK 250 ML",
   "Sinfully Bronze|15 mL":                 "AG SINFULLY BRONZE 15 ML",
   "Wild Obsession|15 mL":                  "AG WILD OBSESSION  15 ML",
   "Solar Dust|237 mL":                     "AG SOLAR DUST 250 ML",
