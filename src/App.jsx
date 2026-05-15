@@ -1,4 +1,163 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+
+// Mapare: "Nume in catalog" + size -> "NUME IN SMARTBILL"
+const SB_MAP = {
+  // Australian Gold
+  "Accelerator Extreme|250 mL":             "AG ACCELERATOR EXTREME WITH BRONZERS 250ML ML",
+  "Accelerator Extreme|15 mL":              "AG ACCELERATOR EXTREME WITH BRONZERS 15 ML",
+  "Accelerator K|250 mL":                   "AG ACCELERATOR K 250 ML",
+  "Accelerator K|15 mL":                    "AG ACCELERATOR K 15 ML",
+  "Accelerator Lotion|250 mL":              "AG ACCELERATOR LOTION 250ML",
+  "Accelerator Lotion|15 mL":              "AG ACCELERATOR LOTION 15 ML",
+  "Accelerator Lot. Aniversare 40|250 mL":  "AG ACCELERATOR 40TH ANNIVERSARY 250 ML",
+  "Accelerator Lot. Aniversare 40|15 mL":   "AG ACCELERATOR 40TH ANNIVERSARY 15 ML",
+  "Accelerator Spray|250 mL":               "AG ACCELERATOR SPRAY 250 ML",
+  "Adorably Bronze|250 mL":                 "AG ADORABLY BRONZE 250 ML",
+  "Adorably Bronze|15 mL":                  "AG ADORABLY BRONZE 15 ML",
+  "Bronze Accelerator|250 mL":              "AG BRONZE ACCELERATOR 250 ML",
+  "Bronze Accelerator|15 mL":              "AG BRONZE ACCELERATOR 15ML",
+  "Charmingly Bronze|250 mL":               "AG CHARMINGLY BRONZE 250 ML",
+  "Charmingly Bronze|15 mL":                "AG CHARMINGLY BRONZE15 ML",
+  "Cheeky Brown|250 mL":                    "AG CHEEKY BROWN 250 ML",
+  "Cheeky Brown|15 mL":                     "AG CHEEKY BROWN 15ML",
+  "Color Crush|250 mL":                     "AG COLOR CRUSH 250 ML",
+  "Color Crush|15 mL":                      "AG COLOR CRUSH 15 ML",
+  "Daringly Dark|250 mL":                   "AG DARINGLY DARK 250ML",
+  "Daringly Dark|15 mL":                    "AG DARINGLY DARK 15 ML",
+  "Dark Legs|250 mL":                       "AG DARK LEGS 250ML",
+  "Dark Legs|15 mL":                        "AG DARK LEGS 15 ML",
+  "Deviously Bronze|250 mL":               "AG DEVIOUSLY BRONZE 250 ML",
+  "Deviously Bronze|15 mL":                "AG DEVIOUSLY BRONZE 15 ML",
+  "Fearlessly Bronze|250 mL":              "AG FEARLESSLY 250 ML",
+  "Fearlessly Bronze|15 mL":               "AG FEARLESSLY 15 ML",
+  "Gelee Accelerator|250 mL":              "AG GELEE ACCELERATOR 250ML",
+  "Gelee Accelerator|15 mL":               "AG GELEE ACCELERATOR 15ML",
+  "Hardcore Bronze|15 mL":                 "AG HARDCORE BRONZE 15 ML",
+  "Hot! Bronze|250 mL":                    "AG HOT BRONZE 250 ML",
+  "Hot! Bronze|15 mL":                     "AG HOT BRONZE 15 ML",
+  "Hot! Hybrid|250 mL":                    "AG HOT HYBRID 250 ML",
+  "Hot! Hybrid|15 mL":                     "AG HOT  HYBRID 15 ML",
+  "Hot! Intensifier|250 mL":               "AG HOT INTENSIFIER 250 ML",
+  "Hot! Intensifier|15 mL":                "AG HOT INTENSIFIER 15 ML",
+  "Magnetize|300 mL":                      "AG MAGNETIZE 300ML",
+  "Magnetize|15 mL":                       "AG MAGNETIZE 15ML",
+  "Mineral Haze|300 mL":                   "AG MINERAL HAZE 300 ML",
+  "Mineral Haze|15 mL":                    "AG MINERAL HAZE 15 ML",
+  "Party Animal|250 mL":                   "AG PARTY ANIMAL 250ML",
+  "Party Animal|15 mL":                    "AG PARTY ANIMAL 15 ML",
+  "Peptide Pro Hybrid Facial|90 mL":       "AG PEPTIDE PRO HYBRID FACIAL 90 ML",
+  "Peptide Pro Hybrid Facial|3 mL":        "AG PEPTIDE PRO HYBRID  FACIAL 3 ML",
+  "Pure Heat|250 mL":                      "AG PURE HEAT 250 ML",
+  "Pure Heat|15 mL":                       "AG PURE HEAT 15 ML",
+  "Sinfully Bronze|15 mL":                 "AG SINFULLY BRONZE 15 ML",
+  "Wild Obsession|15 mL":                  "AG WILD OBSESSION  15 ML",
+  // Devoted Creations
+  "Black Velvet|360 ml":                   "DC BLACK VELVET 360 ML",
+  "Black Velvet|15 ml":                    "DC BLACK VELVET 15 ML",
+  "Beyond the Beach|360 ml":               "DC BEYOND THE BEACH 360 ML",
+  "Beyond the Beach|15 ml":               "DC BEYOND THE BEACH 15 ML",
+  "Filthy Rich|360 ml":                    "DC FILTHY RICH 360 ML",
+  "Filthy Rich|15 ml":                     "DC FILTHY RICH 15 ML",
+  "Neon Rose|360 ml":                      "DC NEON ROSE 360 ML",
+  "Neon Rose|15 ml":                       "DC NEON ROSE 15 ML",
+  "Bronze Confidential|360 ml":            "DC BRONZE CONFIDENTIAL 360 ML",
+  "Bronze Confidential|15 ml":             "DC BRONZE CONFIDENTIAL 15 ML",
+  "White 2 Bronze Coconut|251 ml":         "DC WHITE 2 BLACK COCONUT 251 ML",
+  "White 2 Bronze Coconut|15 ml":          "DC WHITE 2 BLACK COCONUT 15 ML",
+  "White 2 Bronze Coastal|251 ml":         "DC WHITE TO BRONZE COASTAL 251 ML",
+  "White 2 Bronze Coastal|15 ml":          "DC WHITE TO BRONZE COASTAL 15 ML",
+  "White 2 Bronze Extreme|15 ml":          "DC WHITE 2 BLACK EXTREME 15 ML",
+  "White 2 Bronze Ink|15 ml":              "DC WHITE 2 BLACK INK 15 ML",
+  "White 2 Bronze Pure Pomegranate|15 ml": "DC WHITE 2 BLACK PMEGRANATE 15ML",
+  "White 2 Bronze Tingle|15 ml":           "DC WHITE 2 BLACK TINGLE 15 ML",
+  "White 2 Bronze Butter|251 ml":          "DC WHITE 2 BRONZE BUTTER  251 ML",
+  "White 2 Bronze Butter|15 ml":           "DC WHITE 2 BRONZE BUTTER 15 ML",
+  "White 2 Bronze Watermelon Gelée|250 ml":"DC W2B WATERMELON GELEE 250 ML",
+  "White 2 Bronze Watermelon Gelée|15 ml": "DC W2B WATERMELON GELEE 15 ML",
+  "White 2 Bronze Wave|15 ml":             "DC W2B WAVE 15 ML",
+  "All Black Everything|250 ml":           "DC ALL BLACK EVERYTHING 250 ML",
+  "All Black Everything|15 ml":            "DC ALL BLACK EVERYTHING 15 ML",
+  "Dare to be Dark|250 ml":                "DC DARE TO BE DARK 250 ML",
+  "Dare to be Dark|15 ml":                 "DC DARE TO BE DARK 15 ML",
+  "Crush On Color|250 ml":                 "DC CRUSH ON COLOR 250 ML",
+  "Crush On Color|15 ml":                  "DC CRUSH ON COLOR 15 ML",
+  "Crushing It|250 ml":                    "DC CRUSHING IT 251 ML",
+  "Crushing It|15 ml":                     "DC CRUSHING IT 15 ML",
+  "DC Accelerator|251 ml":                 "DC ACCELERATOR 251 ML",
+  "DC Accelerator|15 ml":                  "DC ACCELERATOR 15 ML",
+  "Fast Track 2 Black|15 ml":              "DC FAST TRACK 2 BLACK 15 ML",
+  "Long Overdue|251 ml":                   "DC LONG OVERDUE 251 ML",
+  "Long Overdue|15 ml":                    "DC LONG OVERDUE 15 ML",
+  "Power Player|251 ml":                   "DC POWER PLAYER 251ML",
+  "Power Player|15 ml":                    "DC POWER PLAYER 15 ML",
+  "Tan Mode|251 ml":                       "DC TANMODE 251 ML",
+  "Tan Mode|15 ml":                        "DC TANMODE 15 ML",
+  "Vacay Vibes|251 ml":                    "DC VACAY VIBES 251 ML",
+  "Vacay Vibes|15 ml":                     "DC VACAY VIBES 15 ML",
+  "Game Over|251 ml":                      "DC GAME OVER 251 ML",
+  "Game Over|15 ml":                       "DC GAME OVER 15 ML",
+  "Ride or Tide|251 ml":                   "DC RIDE OR TIDE 251 ML",
+  "Ride or Tide|15 ml":                    "DC RIDE OR TIDE 15 ML",
+  "Cocoa & Shea|251 ml":                   "DC COCOA & SHEA 251 ML",
+  "Going Off Tropic|251 ml":               "DC GOING OFF TROPIC 251 ML",
+  "Going Off Tropic|15 ml":               "DC GOING OFF TROPIC 15 ML",
+  "Glocation|251 ml":                      "DC GLOCATION 251 ML",
+  "Pier Pressure|251 ml":                  "DC PIER PRESSURE 251 ML",
+  "Pier Pressure|15 ml":                   "DC PIER PRESSURE 15 ML",
+  "Reef Havoc|250 ml":                     "DC REEF HAVOC 251 ML",
+  "Reef Havoc|15 ml":                      "DC REEF HAVOC 15 ML",
+  "Saltwater Sundays|200 ml":              "DC SALTWATER SUNDAYS 540 ML",
+  "Bourbon & Honey|200 ml":               "DC BOURBON & HONEY 540 ML",
+  "Coral Colada|200 ml":                   "DC CORAL COLADA BOTTLE 540 ML",
+  "Coconut Krem|200 ml":                   "DC COCONUT KREM 540 ML",
+  "Cloud Kissed|200 ml":                   "DC CLOUD KISSED 540 ML",
+  "Seaside Sunset|200 ml":                 "DC SEASIDE SUNSET 540 ML",
+  "Enchanted Emerald|200 ml":              "DC ENCHANTED EMERALD 540 ML",
+  "Salty Lime Slushie|200 ml":             "DC SALTY LIME SLUSHIE 540 ML",
+  "Berries & Brandy|200 ml":              "DC BERRIES & BRANDY 540 ML",
+  "Coco Creamsicle|200 ml":               "DC COCO CREMSICLE 540 ML",
+  "Pacific Pearl Moisturizer|200 ml":      "DC PACIFIC PEARL 540 ML",
+  "Nantucket Nectar|200 ml":              "DC NANTUCKET NECTAR 540 ML",
+  "Collagenetics Restorative|200 ml":      "DC COLLAGENETICS RESTORATIVE MOISTURIZER 540 ML",
+  // Inky Cosmetics
+  "Travel Lover 100x|150 ml":             "INKY TRAVEL LOVER 150 ML",
+  "Travel Lover 100x|15 ml":              "INKY TRAVEL LOVER 15 ML",
+  "Fit Achiever 150x|150 ml":             "INKY FIT ACHIEVER 150 ML",
+  "Fit Achiever 150x|15 ml":              "INKY FIT ACHIEVER 15 ML",
+  "Joy Maker 200x|150 ml":                "INKY JOY MAKER 150 ML",
+  "Joy Maker 200x|15 ml":                 "INKY JOY MAKER 15 ML",
+  "Hot Freak 150x|150 ml":                "INKY HOT FREAK 150 ML",
+  "Hot Freak 150x|15 ml":                 "INKY HOT FREAK 15 ML",
+  "Rainbow Whisperer 100X|150 ml":        "INKY RAINBOW WHISPERER 150 ML",
+  "Rainbow Whisperer 100X|15 ml":         "INKY RAINBOW WHISPERER 15 ML",
+  "Dark Boss 250X|150 ml":                "INKY DARK BOSS 150 ML",
+  "Dark Boss 250X|15 ml":                 "INKY DARK BOSS 15 ML",
+  "Free Spirit 100X|150 ml":              "INKY FREE SPIRIT 150 ML",
+  "Free Spirit 100X|15 ml":               "INKY FREE SPIRIT 15 ML",
+  // Consumabile
+  "Dezinfectant Tegee Sol|1L":            "DEZINFECTANT TEGEE SOL 1L",
+  "Suport Cap Acryl|buc":                 "SUPORT ACRYL CAP",
+  "Suport Cap Burete|buc":                "SUPORT BURETE CAP",
+  "Aqua Fresh 6L|6L":                     "AQUA FRESH 6 L",
+  "Aqua Cool 10L|10L":                    "AQUA COOL 10L",
+  "Covoraș Cabină (diverse culori)|buc":  "COVOR CABINA 80X60 UV",
+  "Aromă Megasun Sunrise|buc":            "AROMA MEGASUN SUNRISE",
+  "Ochelari Super Sunnies|buc":           "OCHELARI UV",
+  "Ochelari UV cu Șnur|buc":              "OCHELARI UV SNUR ROSU",
+  "Ochelari Podz Designer Classic|buc":   "PODZ CLASSSIC DESIGNER EYEWEAR",
+  "Ochelari Podz Classic|buc":            "PODZ CLASSIC EYEWEAR",
+  "Ochelari Podz Fashion|buc":            "PODZ FASHION EYEWEAR",
+};
+
+// Helper: obtine stocul pentru un produs
+function getStock(stockData, name, size) {
+  if (!stockData) return null;
+  const key = `${name}|${size}`;
+  const sbName = SB_MAP[key];
+  if (!sbName) return null;
+  const val = stockData[sbName.toUpperCase()];
+  return val !== undefined ? val : null;
+}
 
 // ─── AUSTRALIAN GOLD ───────────────────────────────────────────────
 const BR = "https://bronzare.ro/wp-content/uploads/";
@@ -255,6 +414,15 @@ export default function App() {
   const [cartOpen, setCartOpen]   = useState(false);
   const [addedIds, setAddedIds]   = useState({});
   const [orderSent, setOrderSent] = useState(false);
+  const [stockData, setStockData] = useState(null);
+
+  // Trage stocul din SmartBill la incarcare
+  useEffect(() => {
+    fetch("/api/products")
+      .then(r => r.json())
+      .then(d => { if (d.stocks) setStockData(d.stocks); })
+      .catch(() => {});
+  }, []);
 
   // Subcategorii dinamice in functie de categoria principala
   const subcats = useMemo(() => {
@@ -447,6 +615,8 @@ export default function App() {
           const qty = quantities[key] || 0;
           const added = addedIds[key];
           const imgSrc = getAgImg(p.name, p.size) || AG_LOGO;
+          const stoc = getStock(stockData, p.name, p.size);
+          const epuizat = stoc !== null && stoc === 0;
           return (
             <div key={key} style={{ background:"#fff", borderRadius:14, marginBottom:10, padding:"14px", boxShadow:"0 1px 5px rgba(0,0,0,0.07)", display:"flex", alignItems:"center", gap:12 }}>
               <ImgBox src={imgSrc} alt={p.name} fallback={AG_LOGO} />
@@ -454,6 +624,11 @@ export default function App() {
                 <div style={{ fontWeight:700, fontSize:14, lineHeight:1.3 }}>{p.name}</div>
                 <div style={{ fontSize:12, color:"#888", marginTop:2 }}>{p.size}</div>
                 <div style={{ fontSize:10, color:GOLD, fontWeight:600, marginTop:4 }}>{p.type}</div>
+                {stoc !== null && (
+                  <div style={{ fontSize:10, fontWeight:700, marginTop:3, color: stoc === 0 ? "#e53e3e" : "#16a34a" }}>
+                    {stoc === 0 ? "⚠️ Stoc epuizat" : `✓ Stoc: ${stoc} buc`}
+                  </div>
+                )}
               </div>
               <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8, flexShrink:0 }}>
                 <div style={{ textAlign:"right" }}>
@@ -466,9 +641,9 @@ export default function App() {
                     <input type="number" min="0" value={qty} onChange={e => setQty(key, e.target.value)} style={{ width:34, textAlign:"center", fontSize:13, fontWeight:700, border:"none", outline:"none", background:"#fff", fontFamily:"inherit", padding:0 }} />
                     <button onClick={() => setQty(key, qty+1)} style={{ width:28, height:34, background:"#f9f4ec", border:"none", cursor:"pointer", fontSize:16, fontWeight:700, color:"#555" }}>+</button>
                   </div>
-                  <button onClick={() => addToCart(p, undefined)}
-                    style={{ height:34, padding:"0 10px", background: added ? "#2e7d4f" : qty > 0 ? GOLD : "#e8e0d0", color: qty > 0 || added ? "#fff" : "#bbb", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor: qty > 0 ? "pointer" : "default", whiteSpace:"nowrap", transition:"background 0.2s" }}>
-                    {added ? "✓ OK!" : "🛒 Adaugă"}
+                  <button onClick={() => addToCart(p, undefined)} disabled={epuizat}
+                    style={{ height:34, padding:"0 10px", background: epuizat ? "#ddd" : added ? "#2e7d4f" : qty > 0 ? GOLD : "#e8e0d0", color: epuizat ? "#999" : qty > 0 || added ? "#fff" : "#bbb", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor: epuizat || qty === 0 ? "default" : "pointer", whiteSpace:"nowrap", transition:"background 0.2s" }}>
+                    {epuizat ? "Epuizat" : added ? "✓ OK!" : "🛒 Adaugă"}
                   </button>
                 </div>
               </div>
@@ -496,12 +671,19 @@ export default function App() {
                     const key = p.id + "_" + vi;
                     const qty = quantities[key] || 0;
                     const added = addedIds[key];
+                    const stoc = getStock(stockData, p.name, v.size);
+                    const epuizat = stoc !== null && stoc === 0;
                     return (
                       <div key={vi} style={{ display:"flex", alignItems:"center", gap:8, background:"#f9f7f4", borderRadius:10, padding:"8px 10px" }}>
                         <div style={{ flex:1 }}>
                           <span style={{ fontSize:12, fontWeight:700, color:"#444" }}>{v.size}</span>
                           <span style={{ fontSize:13, fontWeight:900, color:DARK, marginLeft:10 }}>{v.ron > 0 ? v.ron.toFixed(2) + " RON" : "—"}</span>
                           {v.ron > 0 && <span style={{ fontSize:11, fontWeight:700, color:"#e53e3e", marginLeft:6 }}>fără TVA</span>}
+                          {stoc !== null && (
+                            <span style={{ fontSize:10, fontWeight:700, marginLeft:8, color: stoc === 0 ? "#e53e3e" : "#16a34a" }}>
+                              {stoc === 0 ? "⚠️ Epuizat" : `✓ ${stoc} buc`}
+                            </span>
+                          )}
                         </div>
                         <div style={{ display:"flex", alignItems:"center", gap:5 }}>
                           <div style={{ display:"flex", border:"1.5px solid #e0d5c5", borderRadius:8, overflow:"hidden" }}>
@@ -509,9 +691,9 @@ export default function App() {
                             <input type="number" min="0" value={qty} onChange={e => setQty(key, e.target.value)} style={{ width:30, textAlign:"center", fontSize:12, fontWeight:700, border:"none", outline:"none", background:"#fff", fontFamily:"inherit", padding:0 }} />
                             <button onClick={() => setQty(key, qty+1)} style={{ width:26, height:30, background:"#f0ece4", border:"none", cursor:"pointer", fontSize:15, fontWeight:700, color:"#555" }}>+</button>
                           </div>
-                          <button onClick={() => addToCart(p, vi)}
-                            style={{ height:30, padding:"0 8px", background: added ? "#2e7d4f" : qty > 0 ? catColor : "#e8e0d0", color: qty > 0 || added ? "#fff" : "#bbb", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor: qty > 0 ? "pointer" : "default", whiteSpace:"nowrap" }}>
-                            {added ? "✓" : "🛒"}
+                          <button onClick={() => addToCart(p, vi)} disabled={epuizat}
+                            style={{ height:30, padding:"0 8px", background: epuizat ? "#ddd" : added ? "#2e7d4f" : qty > 0 ? catColor : "#e8e0d0", color: epuizat ? "#999" : qty > 0 || added ? "#fff" : "#bbb", border:"none", borderRadius:8, fontSize:11, fontWeight:700, cursor: epuizat || qty === 0 ? "default" : "pointer", whiteSpace:"nowrap" }}>
+                            {epuizat ? "✗" : added ? "✓" : "🛒"}
                           </button>
                         </div>
                       </div>
@@ -562,3 +744,5 @@ export default function App() {
     </div>
   );
 }
+
+// ===== PATCH: nu mai e necesar, App.jsx are deja tot codul =====
