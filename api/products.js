@@ -1,4 +1,6 @@
 // api/products.js — Vercel Serverless Function
+// Trage stocul produselor din SmartBill
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -7,7 +9,7 @@ export default async function handler(req, res) {
   const cif   = process.env.SMARTBILL_CIF;
 
   if (!email || !token || !cif) {
-    return res.status(500).json({ error: "Lipsesc variabilele de mediu SmartBill", email: !!email, token: !!token, cif: !!cif });
+    return res.status(500).json({ error: "Lipsesc variabilele de mediu SmartBill" });
   }
 
   const auth = Buffer.from(`${email}:${token}`).toString("base64");
@@ -18,57 +20,47 @@ export default async function handler(req, res) {
   };
 
   try {
-    const prodResp = await fetch(
-      `https://ws.smartbill.ro/SBORO/api/products?cif=${encodeURIComponent(cif)}`,
+    const today = new Date().toISOString().split("T")[0];
+
+    // Endpoint corect SmartBill pentru stoc
+    const stockResp = await fetch(
+      `https://ws.smartbill.ro/SBORO/api/stock?cif=${encodeURIComponent(cif)}&date=${today}`,
       { headers }
     );
 
-    if (!prodResp.ok) {
-      const err = await prodResp.text();
-      return res.status(prodResp.status).json({ 
-        error: "Eroare SmartBill", 
-        status: prodResp.status,
-        detail: err.substring(0, 500)
+    if (!stockResp.ok) {
+      const err = await stockResp.text();
+      return res.status(stockResp.status).json({ 
+        error: "Eroare SmartBill stoc", 
+        status: stockResp.status,
+        url: `https://ws.smartbill.ro/SBORO/api/stock?cif=${cif}&date=${today}`,
+        detail: err.substring(0, 300)
       });
     }
 
-    const prodData = await prodResp.json();
-    const products = prodData.list || prodData.products || prodData || [];
-
-    let stockMap = {};
-    try {
-      const today = new Date().toISOString().split("T")[0];
-      const stockResp = await fetch(
-        `https://ws.smartbill.ro/SBORO/api/stock?cif=${encodeURIComponent(cif)}&date=${today}`,
-        { headers }
-      );
-      if (stockResp.ok) {
-        const stockData = await stockResp.json();
-        const stocks = stockData.list || stockData.stocks || [];
-        if (Array.isArray(stocks)) {
-          stocks.forEach(s => {
-            const key = (s.productName || s.name || "").trim().toUpperCase();
-            stockMap[key] = s.quantity ?? s.stock ?? null;
-          });
-        }
-      }
-    } catch (e) {}
-
-    const result = Array.isArray(products) ? products.map(p => {
-      const name = (p.name || p.productName || "").trim();
-      return {
-        name,
-        code:     p.code || p.productCode || "",
-        price:    parseFloat(p.price || p.unitPrice || p.standardPrice || 0),
-        currency: p.currency || "RON",
-        vatRate:  parseFloat(p.vatRate || p.taxRate || 21),
-        stock:    stockMap[name.toUpperCase()] ?? null,
-        um:       p.measuringUnitName || p.um || "buc",
-      };
-    }) : [];
+    const stockData = await stockResp.json();
+    
+    // Construieste un map { NUME_PRODUS: stoc }
+    const stocks = stockData.list || stockData.stocks || stockData || [];
+    const stockMap = {};
+    if (Array.isArray(stocks)) {
+      stocks.forEach(s => {
+        const name = (s.productName || s.name || "").trim();
+        stockMap[name] = {
+          stock: s.quantity ?? s.stock ?? null,
+          price: parseFloat(s.price || s.unitPrice || 0),
+          um: s.measuringUnitName || s.um || "buc",
+        };
+      });
+    }
 
     res.setHeader("Cache-Control", "s-maxage=300");
-    return res.status(200).json({ products: result, count: result.length, updatedAt: new Date().toISOString() });
+    return res.status(200).json({ 
+      stocks: stockMap,
+      count: Object.keys(stockMap).length,
+      raw: stockData,
+      updatedAt: new Date().toISOString() 
+    });
 
   } catch (err) {
     return res.status(500).json({ error: "Eroare server", detail: err.message });
