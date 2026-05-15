@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   // Autentificare SmartBill: Basic Auth cu email:token in base64
   const auth = Buffer.from(`${email}:${token}`).toString("base64");
   const headers = {
-    "Authorization": `Basic ${auth}`,
+    "Authorization": `Basic ${auth}`, 
     "Content-Type": "application/json",
     "Accept": "application/json",
   };
