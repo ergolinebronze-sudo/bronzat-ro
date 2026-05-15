@@ -1,6 +1,4 @@
 // api/products.js — Vercel Serverless Function
-// Trage stocul produselor din SmartBill
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -21,33 +19,31 @@ export default async function handler(req, res) {
 
   try {
     const today = new Date().toISOString().split("T")[0];
+    const warehouse = "ergolife";
 
-    // Endpoint corect SmartBill pentru stoc
-    const stockResp = await fetch(
-      `https://ws.smartbill.ro/SBORO/api/stock?cif=${encodeURIComponent(cif)}&date=${today}`,
-      { headers }
-    );
+    const url = `https://ws.smartbill.ro/SBORO/api/stock?cif=${encodeURIComponent(cif)}&date=${today}&warehouseName=${encodeURIComponent(warehouse)}`;
+
+    const stockResp = await fetch(url, { headers });
 
     if (!stockResp.ok) {
       const err = await stockResp.text();
       return res.status(stockResp.status).json({ 
         error: "Eroare SmartBill stoc", 
         status: stockResp.status,
-        url: `https://ws.smartbill.ro/SBORO/api/stock?cif=${cif}&date=${today}`,
+        url,
         detail: err.substring(0, 300)
       });
     }
 
     const stockData = await stockResp.json();
-    
-    // Construieste un map { NUME_PRODUS: stoc }
     const stocks = stockData.list || stockData.stocks || stockData || [];
+    
     const stockMap = {};
     if (Array.isArray(stocks)) {
       stocks.forEach(s => {
         const name = (s.productName || s.name || "").trim();
         stockMap[name] = {
-          stock: s.quantity ?? s.stock ?? null,
+          stock: parseFloat(s.quantity ?? s.stock ?? 0),
           price: parseFloat(s.price || s.unitPrice || 0),
           um: s.measuringUnitName || s.um || "buc",
         };
@@ -58,7 +54,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ 
       stocks: stockMap,
       count: Object.keys(stockMap).length,
-      raw: stockData,
       updatedAt: new Date().toISOString() 
     });
 
