@@ -168,7 +168,7 @@ const AG_LOGO = "https://www.australiangold.net/themes/australian-gold/assets/im
 
 const AG_IMAGES = {
   "Accelerator Extreme":            { large: BR+"2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-250ml.jpg", small: BR+"2017/03/AustralianGold-Accelerator-Extreme-w-bronzers-15ml.jpg" },
-  "Accelerator Lotion":             { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: BR+"2015/04/Australian_Gold_Accelerator_15ml.png" },
+  "Accelerator Lotion":             { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: "https://i.ibb.co/bjX8TTGv/shopping.webp" },
   "Accelerator Lot. Aniversare 40": { large: BR+"2015/04/Australian_Gold_Accelerator_250ml.png", small: BR+"2015/04/Australian_Gold_Accelerator_15ml.png" },
   "Accelerator K":                  { large: BR+"2020/12/AG-Accelerator-K-250ml.jpg", small: BR+"2020/12/AG-Accelerator-K-15ml.jpg" },
   "Accelerator Spray":              { large: AGN+"1098-medium_default/accelerator-spray-gel-con-bronzer.jpg" },
