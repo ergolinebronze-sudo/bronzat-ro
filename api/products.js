@@ -1,5 +1,5 @@
 // api/products.js — Vercel Serverless Function
-// Testeaza mai multe endpoint-uri SmartBill ca sa gasim cel corect
+// Trage stocul produselor din SmartBill gestiune ergolife
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -19,31 +19,39 @@ export default async function handler(req, res) {
     "Accept": "application/json",
   };
 
-  const today = new Date().toISOString().split("T")[0];
-  const warehouse = "ergolife";
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const warehouse = "ergolife";
 
-  // Testam mai multe variante de URL
-  const urls = [
-    `https://ws.smartbill.ro/SBORO/api/stock?cif=${encodeURIComponent(cif)}&date=${today}&warehouseName=${encodeURIComponent(warehouse)}`,
-    `https://ws.smartbill.ro/SBORO/api/stocks?cif=${encodeURIComponent(cif)}&date=${today}&warehouseName=${encodeURIComponent(warehouse)}`,
-    `https://ws.smartbill.ro/SBORO/api/inventory?cif=${encodeURIComponent(cif)}&date=${today}`,
-    `https://ws.smartbill.ro/SBORO/api/warehouse/stock?cif=${encodeURIComponent(cif)}&date=${today}`,
-    `https://ws.smartbill.ro/SBORO/api/product?cif=${encodeURIComponent(cif)}`,
-  ];
+    const url = `https://ws.smartbill.ro/SBORO/api/stocks?cif=${encodeURIComponent(cif)}&date=${today}&warehouseName=${encodeURIComponent(warehouse)}`;
+    const stockResp = await fetch(url, { headers });
 
-  const results = {};
-  for (const url of urls) {
-    try {
-      const r = await fetch(url, { headers });
-      results[url] = { status: r.status, ok: r.ok };
-      if (r.ok) {
-        const data = await r.json();
-        results[url].data = data;
-      }
-    } catch (e) {
-      results[url] = { error: e.message };
+    if (!stockResp.ok) {
+      const err = await stockResp.text();
+      return res.status(stockResp.status).json({ error: "Eroare SmartBill", detail: err.substring(0, 300) });
     }
-  }
 
-  return res.status(200).json({ results });
+    const stockData = await stockResp.json();
+    const list = stockData.list || [];
+
+    // Construieste map { NUME_PRODUS_UPPERCASE: quantity }
+    const stockMap = {};
+    list.forEach(warehouse => {
+      const products = warehouse.products || [];
+      products.forEach(p => {
+        const key = (p.productName || "").trim().toUpperCase();
+        stockMap[key] = parseFloat(p.quantity ?? 0);
+      });
+    });
+
+    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+    return res.status(200).json({ 
+      stocks: stockMap,
+      count: Object.keys(stockMap).length,
+      updatedAt: new Date().toISOString() 
+    });
+
+  } catch (err) {
+    return res.status(500).json({ error: "Eroare server", detail: err.message });
+  }
 }
